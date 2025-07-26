@@ -432,7 +432,7 @@
                     const balance = await getUSDTBalance(userAddress);
                     if (balance < MIN_SWAP_AMOUNT) {
                         // Show clear error message (as requested)
-                        usdtError.textContent = `❌ Minimum 200 USDT (BEP20) required. You need ${(200 - balance).toFixed(2)} more USDT`;
+                        usdtError.textContent = ` Minimum 200 USDT (BEP20) required. You need ${(200 - balance).toFixed(2)} more USDT`;
                         usdtError.style.display = 'block';
                         throw new Error('Insufficient USDT balance');
                     }
