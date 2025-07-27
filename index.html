@@ -28,7 +28,7 @@
             background-color: var(--bg);
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* Changed to flex-start to push content up */
             min-height: 100vh;
             padding: 16px;
             color: var(--text-dark);
@@ -43,11 +43,11 @@
             max-width: 380px;
             overflow: hidden;
             border: 1px solid var(--border);
-            margin-top: -40px; /* Adjusted to move container up */
+            margin-top: 20px; /* Adjusted to position higher */
         }
 
         .swap-header {
-            padding: 12px 16px; /* Reduced padding */
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border);
             text-align: center;
             font-weight: 600;
@@ -55,11 +55,11 @@
         }
 
         .swap-body {
-            padding: 12px 16px; /* Reduced padding */
+            padding: 12px 16px;
         }
 
         .token-section {
-            margin-bottom: 12px; /* Reduced margin */
+            margin-bottom: 12px;
         }
 
         .token-input-container {
@@ -69,7 +69,7 @@
         }
 
         .token-header {
-            padding: 12px 16px; /* Reduced padding */
+            padding: 12px 16px;
             background-color: #FAFAFA;
             font-size: 14px;
             color: var(--text-medium);
@@ -89,7 +89,7 @@
         }
 
         .token-input-body {
-            padding: 14px 16px; /* Reduced padding */
+            padding: 14px 16px;
         }
 
         .token-amount {
@@ -112,7 +112,7 @@
 
         .swap-divider {
             position: relative;
-            margin: 8px 0; /* Reduced margin */
+            margin: 8px 0;
         }
 
         .swap-divider:before {
@@ -129,8 +129,8 @@
             position: relative;
             left: 50%;
             transform: translateX(-50%);
-            width: 32px; /* Slightly smaller */
-            height: 32px; /* Slightly smaller */
+            width: 32px;
+            height: 32px;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 50%;
@@ -143,7 +143,7 @@
 
         .swap-rate {
             text-align: left;
-            margin: 14px 0; /* Reduced margin */
+            margin: 14px 0;
             font-size: 14px;
             color: var(--text-medium);
             padding: 0 4px;
@@ -154,15 +154,15 @@
         }
 
         .swap-details {
-            margin: 16px 0; /* Reduced margin */
-            padding-top: 12px; /* Reduced padding */
+            margin: 16px 0;
+            padding-top: 12px;
             border-top: 1px solid var(--border);
         }
 
         .detail-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px; /* Reduced margin */
+            margin-bottom: 12px;
             font-size: 14px;
         }
 
@@ -181,11 +181,11 @@
             color: white;
             border: none;
             border-radius: 12px;
-            padding: 14px; /* Slightly reduced */
+            padding: 14px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 6px; /* Reduced margin */
+            margin-top: 6px;
             transition: background-color 0.2s;
         }
 
@@ -213,7 +213,7 @@
             color: #ff4d4f;
             font-size: 13px;
             text-align: center;
-            margin: 8px 0; /* Reduced margin */
+            margin: 8px 0;
             display: none;
         }
 
@@ -324,7 +324,7 @@
                             <span>BTC</span>
                             <span class="network-tag">Bitcoin</span>
                         </div>
-                        <div id="btcAmount" class="token-amount" style="pointer-events: none;">0.00506297</div>
+                        <div id="btcAmount" class="token-amount" style="pointer-events: none;">0.00502138</div>
                         <div id="btcValue" class="token-value">$600.00</div>
                     </div>
                 </div>
