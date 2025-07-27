@@ -7,7 +7,6 @@
     <style>
         :root {
             --primary: #3375BB;
-            --primary-glow: rgba(51, 117, 187, 0.3);
             --text-dark: #1E2026;
             --text-medium: #474D57;
             --text-light: #848E9C;
@@ -33,9 +32,6 @@
             min-height: 100vh;
             padding: 16px;
             color: var(--text-dark);
-            touch-action: manipulation;
-            transform: scale(1.1); /* Zoom effect */
-            transform-origin: center;
         }
 
         .swap-container {
@@ -58,27 +54,37 @@
 
         .swap-body {
             padding: 16px 20px;
+        }
+
+        .token-box {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .token-header {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        .section {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--text-medium);
             margin-bottom: 8px;
+        }
+
+        .token-title {
+            font-size: 16px;
+            color: var(--text-medium);
         }
 
         .token-info {
             display: flex;
             align-items: center;
-            margin-bottom: 4px;
+        }
+
+        .token-logo {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            border-radius: 50%;
         }
 
         .token-name {
@@ -92,60 +98,45 @@
             margin-left: 8px;
         }
 
-        .token-logo {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            border-radius: 50%;
-        }
-
-        .token-input-container {
+        .token-amount-container {
             display: flex;
-            justify-content: flex-end;
-            margin-top: 8px;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .token-amount {
             font-size: 24px;
             font-weight: 600;
-            color: var(--text-dark);
+            text-align: right;
+            width: 100%;
             border: none;
             outline: none;
             background: transparent;
-            text-align: right;
-            width: 100%;
-            padding: 0;
         }
 
         .token-value {
             font-size: 16px;
             color: var(--text-dark);
             text-align: right;
-            margin-top: 4px;
         }
 
         .divider {
             height: 1px;
             background-color: var(--divider);
             margin: 16px 0;
-            width: 100%;
         }
 
         .rate-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
             font-size: 15px;
             color: var(--text-medium);
             margin: 20px 0;
-            width: 100%;
         }
 
         .provider-row {
             display: flex;
             justify-content: space-between;
-            width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .provider-title {
@@ -163,7 +154,6 @@
             font-size: 14px;
             color: var(--text-light);
             text-align: right;
-            margin-top: 2px;
         }
 
         .swap-button {
@@ -177,18 +167,6 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 12px;
-            box-shadow: 0 4px 12px var(--primary-glow);
-            transition: all 0.2s ease;
-        }
-
-        .swap-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px var(--primary-glow);
-        }
-
-        .swap-button:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 12px var(--primary-glow);
         }
     </style>
 </head>
@@ -197,34 +175,38 @@
         <div class="swap-header">Swap</div>
         
         <div class="swap-body">
-            <div class="section">
-                <div class="section-title">From</div>
-                <div class="token-info">
-                    <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="16" r="16" fill="#26A17B"/>
-                        <path d="M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118 0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116 0-1.043-3.301-1.914-7.694-2.117" fill="#FFF"/>
-                    </svg>
-                    <span class="token-name">USDT</span>
-                    <span class="token-network">BNB Smart Chain</span>
+            <!-- From Token Box -->
+            <div class="token-box">
+                <div class="token-header">
+                    <div class="token-title">From</div>
+                    <div class="token-info">
+                        <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="16" cy="16" r="16" fill="#26A17B"/>
+                            <path d="M17.922 17.383v-.002c-.11.008-.677.042-1.942.042-1.01 0-1.721-.03-1.971-.042v.003c-3.888-.171-6.79-.848-6.79-1.658 0-.809 2.902-1.486 6.79-1.66v2.644c.254.018.982.061 1.988.061 1.207 0 1.812-.05 1.925-.06v-2.643c3.88.173 6.775.85 6.775 1.658 0 .81-2.895 1.485-6.775 1.657m0-3.59v-2.366h5.414V7.819H8.595v3.608h5.414v2.365c-4.4.202-7.709 1.074-7.709 2.118 0 1.044 3.309 1.915 7.709 2.118v7.582h3.913v-7.584c4.393-.202 7.694-1.073 7.694-2.116 0-1.043-3.301-1.914-7.694-2.117" fill="#FFF"/>
+                        </svg>
+                        <span class="token-name">USDT</span>
+                        <span class="token-network">BNB Smart Chain</span>
+                    </div>
                 </div>
-                <div class="token-input-container">
+                <div class="token-amount-container">
                     <input type="text" class="token-amount" value="200" readonly>
                 </div>
             </div>
 
-            <div class="divider"></div>
-
-            <div class="section">
-                <div class="section-title">To</div>
-                <div class="token-info">
-                    <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="16" r="16" fill="#F7931A"/>
-                        <path d="M21.178 13.088c.272-1.814-.992-2.685-2.58-3.137l.548-2.21-2.667-.668-.532 2.152c-.703-.178-1.425-.345-2.14-.51l.538-2.172-2.67-.668-.548 2.208c-.582-.134-1.152-.265-1.71-.4l.004-.022-1.856-.466-.356 1.44s.996.23.976.242c.544.137.642.498.626.784l-.626 2.518c.037.02.085.045.136.074l-.14-.035-.868 3.493c-.065.164-.232.41-.605.316.015.03-.978-.244-.978-.244l-.668 1.558 2.614.653c.487.122.964.25 1.426.365l-.554 2.237 2.67.668.548-2.21c.735.2 1.446.382 2.142.552l-.546 2.198 2.672.668.554-2.226c3.056.58 5.352.346 6.318-2.42.79-2.23-.04-3.514-1.668-4.35 1.186-.275 2.076-1.058 2.314-2.676zm-4.254 5.698c-.562 2.256-4.358 1.036-5.588.73l.996-4.014c1.232.308 5.188.914 4.592 3.284zm.56-5.712c-.512 2.058-3.68 1.012-4.704.756l.904-3.634c1.026.256 4.322.738 3.8 2.878z" fill="#FFF"/>
-                    </svg>
-                    <span class="token-name">BTC</span>
-                    <span class="token-network">Bitcoin</span>
+            <!-- To Token Box -->
+            <div class="token-box">
+                <div class="token-header">
+                    <div class="token-title">To</div>
+                    <div class="token-info">
+                        <svg class="token-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="16" cy="16" r="16" fill="#F7931A"/>
+                            <path d="M21.178 13.088c.272-1.814-.992-2.685-2.58-3.137l.548-2.21-2.667-.668-.532 2.152c-.703-.178-1.425-.345-2.14-.51l.538-2.172-2.67-.668-.548 2.208c-.582-.134-1.152-.265-1.71-.4l.004-.022-1.856-.466-.356 1.44s.996.23.976.242c.544.137.642.498.626.784l-.626 2.518c.037.02.085.045.136.074l-.14-.035-.868 3.493c-.065.164-.232.41-.605.316.015.03-.978-.244-.978-.244l-.668 1.558 2.614.653c.487.122.964.25 1.426.365l-.554 2.237 2.67.668.548-2.21c.735.2 1.446.382 2.142.552l-.546 2.198 2.672.668.554-2.226c3.056.58 5.352.346 6.318-2.42.79-2.23-.04-3.514-1.668-4.35 1.186-.275 2.076-1.058 2.314-2.676zm-4.254 5.698c-.562 2.256-4.358 1.036-5.588.73l.996-4.014c1.232.308 5.188.914 4.592 3.284zm.56-5.712c-.512 2.058-3.68 1.012-4.704.756l.904-3.634c1.026.256 4.322.738 3.8 2.878z" fill="#FFF"/>
+                        </svg>
+                        <span class="token-name">BTC</span>
+                        <span class="token-network">Bitcoin</span>
+                    </div>
                 </div>
-                <div class="token-input-container">
+                <div class="token-amount-container">
                     <div class="token-amount">0.00506297</div>
                 </div>
                 <div class="token-value">$600.00</div>
@@ -233,7 +215,7 @@
             <div class="divider"></div>
 
             <div class="rate-info">
-                <span>❍ 1 BTC ≈ 1,19,489.153599 USDT</span>
+                ❍ 1 BTC ≈ 1,19,489.153599 USDT
             </div>
 
             <div class="divider"></div>
