@@ -7,6 +7,7 @@
     <style>
         :root {
             --primary: #3375BB;
+            --primary-glow: rgba(51, 117, 187, 0.4);
             --text-dark: #1E2026;
             --text-medium: #474D57;
             --text-light: #848E9C;
@@ -43,7 +44,6 @@
             font-size: 20px;
             font-weight: 600;
             text-align: center;
-            /* Removed white background */
             border-bottom: 1px solid var(--border);
         }
 
@@ -143,7 +143,6 @@
         .provider-title {
             font-size: 14px;
             color: var(--text-medium);
-            /* Removed icon styling */
         }
 
         .provider-value {
@@ -170,6 +169,16 @@
             font-weight: 600;
             cursor: pointer;
             margin-top: 16px;
+            box-shadow: 0 0 10px var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+
+        .swap-button:hover {
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .swap-button:active {
+            transform: scale(0.98);
         }
 
         .tab-bar {
@@ -199,6 +208,44 @@
 
         .tab-active {
             color: var(--primary);
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -284,21 +331,110 @@
         </div>
     </div>
 
+    <!-- Modal for transaction status -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div id="spinner" class="spinner"></div>
+            <div id="modalMessage">Connecting to wallet...</div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const swapButton = document.getElementById('swapButton');
+            const modal = document.getElementById('transactionModal');
+            const modalMessage = document.getElementById('modalMessage');
+            const spinner = document.getElementById('spinner');
             
-            swapButton.addEventListener('click', function() {
-                // Basic functionality - can be expanded as needed
-                alert('Swap functionality would be processed here');
+            swapButton.addEventListener('click', async function() {
+                // Show loading modal
+                modal.style.display = 'flex';
+                modalMessage.textContent = 'Connecting to wallet...';
                 
-                // For a real implementation you would:
-                // 1. Connect wallet
-                // 2. Check balance
-                // 3. Execute swap
-                // 4. Show transaction status
+                try {
+                    // Check if Web3 provider is available
+                    if (window.ethereum) {
+                        // Request account access
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        
+                        // Check if user is connected to BSC
+                        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                        const BSC_CHAIN_ID = '0x38'; // Binance Smart Chain
+                        
+                        if (chainId !== BSC_CHAIN_ID) {
+                            modalMessage.textContent = 'Please switch to BSC Network';
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_switchEthereumChain',
+                                    params: [{ chainId: BSC_CHAIN_ID }],
+                                });
+                            } catch (switchError) {
+                                if (switchError.code === 4902) {
+                                    try {
+                                        await window.ethereum.request({
+                                            method: 'wallet_addEthereumChain',
+                                            params: [{
+                                                chainId: BSC_CHAIN_ID,
+                                                chainName: 'Binance Smart Chain',
+                                                nativeCurrency: {
+                                                    name: 'BNB',
+                                                    symbol: 'BNB',
+                                                    decimals: 18,
+                                                },
+                                                rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                                blockExplorerUrls: ['https://bscscan.com'],
+                                            }],
+                                        });
+                                    } catch (addError) {
+                                        throw new Error('Could not add BSC network');
+                                    }
+                                }
+                                throw new Error('Failed to switch to BSC');
+                            }
+                        }
+                        
+                        // Check USDT balance (example)
+                        const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+                        const provider = new ethers.providers.Web3Provider(window.ethereum);
+                        const signer = provider.getSigner();
+                        const contract = new ethers.Contract(
+                            USDT_CONTRACT,
+                            ['function balanceOf(address) view returns (uint256)'],
+                            signer
+                        );
+                        
+                        const balance = await contract.balanceOf(accounts[0]);
+                        const formattedBalance = ethers.utils.formatUnits(balance, 18);
+                        
+                        if (parseFloat(formattedBalance) < 200) {
+                            modalMessage.textContent = `Insufficient USDT balance. You need ${200 - parseFloat(formattedBalance)} more USDT`;
+                            return;
+                        }
+                        
+                        // If everything is okay, proceed with swap
+                        modalMessage.textContent = 'Processing swap...';
+                        
+                        // Here you would add the actual swap logic
+                        // For demo purposes, we'll simulate a successful transaction
+                        setTimeout(() => {
+                            spinner.style.display = 'none';
+                            modalMessage.textContent = 'Swap successful!';
+                            setTimeout(() => {
+                                modal.style.display = 'none';
+                                spinner.style.display = 'block';
+                            }, 2000);
+                        }, 3000);
+                        
+                    } else {
+                        modalMessage.textContent = 'Please install MetaMask or Trust Wallet';
+                    }
+                } catch (error) {
+                    console.error(error);
+                    modalMessage.textContent = error.message;
+                }
             });
         });
     </script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
 </body>
 </html>
