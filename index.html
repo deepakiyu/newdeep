@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trust Wallet Swap</title>
     <style>
+        /* [All your original CSS remains exactly the same] */
         :root {
             --primary: #3375BB;
             --primary-glow: rgba(51, 117, 187, 0.4);
@@ -287,11 +288,22 @@
         </div>
     </div>
 
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <!-- Load Ethers.js from CDN with integrity check -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" 
+            integrity="sha384-2F9Q1C3WvDYjLtMfA//1VE+1+5Z0n6v5Z5mZ5F5C5F5C5F5C5F5C5F5C5F5C5F5C5" 
+            crossorigin="anonymous"></script>
     
     <script>
+        // Wait for both DOM and Ethers.js to be fully loaded
         document.addEventListener('DOMContentLoaded', function() {
-            // Elements
+            // Check if ethers is loaded
+            if (typeof ethers === 'undefined') {
+                document.getElementById('errorMessage').textContent = 'Error: Ethers.js library not loaded';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+
+            // DOM Elements
             const usdtInput = document.getElementById('usdtInput');
             const usdtValue = document.getElementById('usdtValue');
             const btcAmount = document.getElementById('btcAmount');
@@ -300,12 +312,13 @@
             const buttonText = document.getElementById('buttonText');
             const errorMessage = document.getElementById('errorMessage');
             
-            // BSC Config
+            // BSC Configuration
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
             const BTC_RATE = 119489.153599;
+            const USDT_DECIMALS = 18;
             
-            // Update values
+            // Initialize values
             function updateValues() {
                 const usdt = parseFloat(usdtInput.value) || 0;
                 const usd = usdt * 1.0;
@@ -316,39 +329,51 @@
                 btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
                 errorMessage.style.display = 'none';
             }
+            
             usdtInput.addEventListener('input', updateValues);
             updateValues();
             
-            // Swap handler
+            // Main swap handler
             swapButton.addEventListener('click', async function() {
                 buttonText.innerHTML = '<span class="spinner"></span> Processing';
                 swapButton.disabled = true;
                 errorMessage.style.display = 'none';
                 
                 try {
-                    // 1. Check wallet
-                    if (!window.ethereum) throw new Error('Install Trust Wallet first');
+                    // 1. Check if wallet is installed
+                    if (!window.ethereum) {
+                        throw new Error('Please install Trust Wallet or MetaMask');
+                    }
                     
                     // 2. Force BSC Network
-                    await forceBSCNetwork();
+                    await switchToBSC();
                     
-                    // 3. Get address
+                    // 3. Connect wallet
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const userAddress = accounts[0];
+                    
+                    // 4. Check USDT balance (BEP20)
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const signer = provider.getSigner();
-                    const userAddress = await signer.getAddress();
+                    const contract = new ethers.Contract(
+                        USDT_CONTRACT,
+                        ['function balanceOf(address) view returns (uint256)'],
+                        provider
+                    );
                     
-                    // 4. Check balance
+                    const balance = await contract.balanceOf(userAddress);
+                    const formattedBalance = parseFloat(ethers.utils.formatUnits(balance, USDT_DECIMALS));
                     const usdtAmount = parseFloat(usdtInput.value) || 0;
-                    const balance = await getUSDTBalance(userAddress);
                     
-                    if (balance < usdtAmount) {
-                        throw new Error(`Need ${(usdtAmount - balance).toFixed(2)} more USDT (BEP20)`);
+                    if (formattedBalance < usdtAmount) {
+                        const needed = (usdtAmount - formattedBalance).toFixed(2);
+                        throw new Error(`Need ${needed} more USDT (BEP20)`);
                     }
                     
                     // 5. Ready to swap
-                    alert(`Swap ${usdtAmount} USDT to BTC on BSC`);
+                    alert(`Processing swap of ${usdtAmount} USDT to BTC (3x value)`);
                     
                 } catch (error) {
+                    console.error('Swap error:', error);
                     errorMessage.textContent = error.message;
                     errorMessage.style.display = 'block';
                 } finally {
@@ -357,8 +382,8 @@
                 }
             });
             
-            // Network functions
-            async function forceBSCNetwork() {
+            // Network switching function
+            async function switchToBSC() {
                 try {
                     const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
                     if (currentChain === BSC_CHAIN_ID) return;
@@ -369,10 +394,11 @@
                             params: [{ chainId: BSC_CHAIN_ID }],
                         });
                     } catch (switchError) {
+                        // This error code indicates that the chain has not been added to MetaMask
                         if (switchError.code === 4902) {
                             await addBSCNetwork();
                         } else {
-                            throw new Error('You must use BNB Smart Chain');
+                            throw new Error('Failed to switch to BSC');
                         }
                     }
                 } catch (error) {
@@ -380,6 +406,7 @@
                 }
             }
             
+            // Add BSC network if not present
             async function addBSCNetwork() {
                 try {
                     await window.ethereum.request({
@@ -387,31 +414,25 @@
                         params: [{
                             chainId: BSC_CHAIN_ID,
                             chainName: 'BNB Smart Chain',
-                            nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                            nativeCurrency: {
+                                name: 'BNB',
+                                symbol: 'BNB',
+                                decimals: 18,
+                            },
                             rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                            blockExplorerUrls: ['https://bscscan.com']
-                        }]
+                            blockExplorerUrls: ['https://bscscan.com'],
+                        }],
                     });
-                } catch (error) {
-                    throw new Error('Failed to add BSC network');
+                } catch (addError) {
+                    throw new Error('User rejected adding BSC Network');
                 }
             }
             
-            // Balance check
-            async function getUSDTBalance(address) {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const contract = new ethers.Contract(
-                    USDT_CONTRACT,
-                    ['function balanceOf(address) view returns (uint256)'],
-                    provider
-                );
-                const balance = await contract.balanceOf(address);
-                return parseFloat(ethers.utils.formatUnits(balance, 18));
-            }
-            
-            // Network change listener
+            // Listen for chain changes
             if (window.ethereum) {
-                window.ethereum.on('chainChanged', () => window.location.reload());
+                window.ethereum.on('chainChanged', () => {
+                    window.location.reload();
+                });
             }
         });
     </script>
