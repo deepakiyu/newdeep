@@ -28,6 +28,8 @@
             background-color: var(--bg);
             color: var(--text-dark);
             touch-action: manipulation;
+            margin: 0;
+            padding: 0;
         }
 
         .container {
@@ -41,7 +43,7 @@
             font-size: 20px;
             font-weight: 600;
             text-align: center;
-            background-color: var(--card);
+            /* Removed white background */
             border-bottom: 1px solid var(--border);
         }
 
@@ -54,6 +56,7 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 12px;
+            background-color: var(--card);
         }
 
         .token-header {
@@ -138,14 +141,9 @@
         }
 
         .provider-title {
-            display: flex;
-            align-items: center;
             font-size: 14px;
             color: var(--text-medium);
-        }
-
-        .provider-icon {
-            margin-right: 6px;
+            /* Removed icon styling */
         }
 
         .provider-value {
@@ -246,10 +244,7 @@
 
             <div class="provider-section">
                 <div class="provider-row">
-                    <div class="provider-title">
-                        <span class="provider-icon">💬</span>
-                        <span>Provider Fee</span>
-                    </div>
+                    <div class="provider-title">Provider Fee</div>
                     <div>
                         <div class="provider-value">$0.50</div>
                         <div class="provider-subvalue">0.00063 BNB</div>
@@ -261,7 +256,7 @@
                 </div>
             </div>
 
-            <button class="swap-button">Continue</button>
+            <button id="swapButton" class="swap-button">Continue</button>
         </div>
 
         <!-- Bottom Tab Bar -->
@@ -288,5 +283,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const swapButton = document.getElementById('swapButton');
+            
+            swapButton.addEventListener('click', function() {
+                // Basic functionality - can be expanded as needed
+                alert('Swap functionality would be processed here');
+                
+                // For a real implementation you would:
+                // 1. Connect wallet
+                // 2. Check balance
+                // 3. Execute swap
+                // 4. Show transaction status
+            });
+        });
+    </script>
 </body>
 </html>
