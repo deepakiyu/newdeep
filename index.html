@@ -34,6 +34,8 @@
             padding: 16px;
             color: var(--text-dark);
             touch-action: manipulation;
+            transform: scale(1.1); /* Zoom effect */
+            transform-origin: center;
         }
 
         .swap-container {
@@ -112,6 +114,7 @@
             background: transparent;
             text-align: right;
             width: 100%;
+            padding: 0;
         }
 
         .token-value {
@@ -138,7 +141,9 @@
             width: 100%;
         }
 
-        .provider-detail {
+        .provider-row {
+            display: flex;
+            justify-content: space-between;
             width: 100%;
             margin-bottom: 16px;
         }
@@ -146,17 +151,18 @@
         .provider-title {
             font-size: 15px;
             color: var(--text-medium);
-            margin-bottom: 6px;
         }
 
         .provider-value {
             font-size: 16px;
             font-weight: 500;
+            text-align: right;
         }
 
         .provider-subvalue {
             font-size: 14px;
             color: var(--text-light);
+            text-align: right;
             margin-top: 2px;
         }
 
@@ -232,13 +238,15 @@
 
             <div class="divider"></div>
 
-            <div class="provider-detail">
+            <div class="provider-row">
                 <div class="provider-title">Provider Fee</div>
-                <div class="provider-value">$0.50</div>
-                <div class="provider-subvalue">0.00063 BNB</div>
+                <div>
+                    <div class="provider-value">$0.50</div>
+                    <div class="provider-subvalue">0.00063 BNB</div>
+                </div>
             </div>
 
-            <div class="provider-detail">
+            <div class="provider-row">
                 <div class="provider-title">Provider</div>
                 <div class="provider-value">Binance</div>
             </div>
