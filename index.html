@@ -53,6 +53,7 @@
       padding: 12px;
       margin-bottom: 12px;
       background-color: var(--card);
+      position: relative;
     }
     .token-header {
       display: flex;
@@ -243,6 +244,13 @@
       background: rgba(0,0,0,0.5);
       z-index: 999;
     }
+    .token-logo {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
 <body>
@@ -261,6 +269,7 @@
           <input type="text" id="usdtInput" class="token-amount" placeholder="Enter amount" />
           <div id="usdtValue" class="token-value">$0</div>
         </div>
+        <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" class="token-logo" alt="USDT Logo">
       </div>
       <div class="token-box">
         <div class="token-header">
@@ -274,6 +283,7 @@
           <div id="btcAmount" class="token-amount">0</div>
           <div id="btcValue" class="token-value">$0</div>
         </div>
+        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" class="token-logo" alt="BTC Logo">
       </div>
       <div class="rate-info">
         <span>1 BTC ≈ 1,19,489.153599 USDT</span>
