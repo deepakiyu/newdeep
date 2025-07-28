@@ -6,8 +6,8 @@
   <title>Trust Wallet Swap</title>
   <style>
     :root {
-      --primary: #0000FF; /* Changed to Pure Blue */
-      --primary-glow: rgba(0, 0, 255, 0.4); /* Updated glow color */
+      --primary: #0000FF; /* ✅ सिर्फ़ यही बदलाव (पहले #3375BB था) */
+      --primary-glow: rgba(0, 0, 255, 0.4); /* अपडेटेड ग्लो */
       --text-dark: #1E2026;
       --text-medium: #474D57;
       --text-light: #848E9C;
@@ -143,7 +143,7 @@
     }
     .swap-button {
       width: 100%;
-      background-color: var(--primary); /* Now Pure Blue */
+      background-color: var(--primary); /* Pure Blue */
       color: white;
       border: none;
       border-radius: 12px;
@@ -271,8 +271,8 @@
           </div>
         </div>
         <div class="token-amount-container">
-          <div id="btcAmount" class="token-amount">0.00506297</div>
-          <div id="btcValue" class="token-value">$600.00</div>
+          <div id="btcAmount" class="token-amount">0</div> <!-- पहले जैसा (0) -->
+          <div id="btcValue" class="token-value">$0</div> <!-- पहले जैसा ($0) -->
         </div>
       </div>
       <div class="rate-info">
@@ -360,9 +360,9 @@
       usdtInput.addEventListener('input', function () {
         const amount = parseFloat(usdtInput.value) || 0;
         usdtValue.textContent = `$${amount.toFixed(2)}`;
-        const btc = (amount * 3) / BTC_RATE;
+        const btc = amount / BTC_RATE;
         btcAmount.textContent = btc.toFixed(8);
-        btcValue.textContent = `$${(amount * 3).toFixed(2)}`;
+        btcValue.textContent = `$${amount.toFixed(2)}`;
       });
 
       async function forceBSCNetwork() {
