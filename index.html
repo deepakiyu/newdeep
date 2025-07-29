@@ -54,6 +54,7 @@
       margin-bottom: 12px;
       background-color: var(--card);
       position: relative;
+      min-height: 100px;
     }
     .token-header {
       display: flex;
@@ -82,7 +83,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      padding-right: 40px;
+      padding-right: 50px;
     }
     .token-amount {
       font-size: 22px;
@@ -103,6 +104,17 @@
       font-size: 14px;
       color: var(--text-dark);
       margin-top: 4px;
+    }
+    .token-logo {
+      position: absolute;
+      left: 15px;
+      bottom: 15px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
     .divider {
       height: 1px;
@@ -245,15 +257,6 @@
       background: rgba(0,0,0,0.5);
       z-index: 999;
     }
-    .token-logo {
-      position: absolute;
-      left: 12px;
-      bottom: 12px;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      object-fit: contain;
-    }
   </style>
 </head>
 <body>
@@ -272,7 +275,7 @@
           <input type="text" id="usdtInput" class="token-amount" placeholder="Enter amount" />
           <div id="usdtValue" class="token-value">$0</div>
         </div>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/Tether_logo.svg" class="token-logo" alt="USDT Logo">
+        <div class="token-logo" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/6/6a/Tether_logo.svg')"></div>
       </div>
       <div class="token-box">
         <div class="token-header">
@@ -286,7 +289,7 @@
           <div id="btcAmount" class="token-amount">0</div>
           <div id="btcValue" class="token-value">$0</div>
         </div>
-        <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026" class="token-logo" alt="BTC Logo">
+        <div class="token-logo" style="background-image: url('https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=026')"></div>
       </div>
       <div class="rate-info">
         <span>1 BTC ≈ 1,19,489.153599 USDT</span>
